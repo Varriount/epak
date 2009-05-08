@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define PASSWORD		"12358 Dummy password"
+
 /* The repetition of zeros highlights in the generated encrypted file that the
  * encryption doesn't use CBC mode, and thus by knowing that a list of zeroes
  * is contigous, the attacker could guess xor ecryption easily.
@@ -73,13 +75,13 @@ int main(void)
 {
 	printf("Testing epak functions.\n");
 
-	packfile_password("12358 Dummy password");
+	packfile_password(PASSWORD);
 	pack_test("with pass.epak");
 
 	packfile_password(0);
 	pack_test("no pass.epak");
 
-	packfile_password("12358 Dummy password");
+	packfile_password(PASSWORD);
 	read_skip_test("with pass.epak");
 
 	packfile_password(0);

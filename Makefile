@@ -49,12 +49,17 @@ example: $(LIB_NAME)
 	(cd example && ./pretest && cd ..)
 	mv example/pretest example/test
 
+python_test: example
+	(cd example && ./test.py)
+	@echo "Python example runs finished"
+
 python:
 	./setup.py build
 	echo "Python module built"
 
 install_python: python
 	./setup.py install
+	@echo "Now that epak module is available, try running make python_test"
 
 docs:
 	doxygen

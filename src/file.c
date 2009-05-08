@@ -418,14 +418,14 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
 #ifndef ALLEGRO_MPW
 	if (strpbrk(mode, "wW"))  /* write mode? */
-		fd = _al_open(uconvert_tofilename(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, OPEN_PERMS);
+		fd = _al_open(filename, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, OPEN_PERMS);
 	else
-		fd = _al_open(uconvert_tofilename(filename, tmp), O_RDONLY | O_BINARY, OPEN_PERMS);
+		fd = _al_open(filename, O_RDONLY | O_BINARY, OPEN_PERMS);
 #else
 	if (strpbrk(mode, "wW"))  /* write mode? */
-		fd = _al_open(uconvert_tofilename(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
+		fd = _al_open(filename, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
 	else
-		fd = _al_open(uconvert_tofilename(filename, tmp), O_RDONLY | O_BINARY);
+		fd = _al_open(filename, O_RDONLY | O_BINARY);
 #endif
 
 	if (fd < 0) {
@@ -1075,66 +1075,6 @@ int pack_ungetc(int c, PACKFILE *f)
 	return f->vtable->pf_ungetc(c, f->userdata);
 }
 
-
-
-/* pack_fgets:
- *  Reads a line from a text file, storing it at location p. Stops when a
- *  linefeed is encountered, or max bytes have been read. Returns a pointer
- *  to where it stored the text, or NULL on error. The end of line is
- *  handled by detecting optional '\r' characters optionally followed
- *  by '\n' characters. This supports CR-LF (DOS/Windows), LF (Unix), and
- *  CR (Mac) formats.
- */
-char *pack_fgets(char *p, int max, PACKFILE *f)
-{
-	char *pmax, *orig_p = p;
-	int c;
-	ASSERT(f);
-
-	*allegro_errno = 0;
-
-	pmax = p+max - ucwidth(0);
-
-	if ((c = pack_getc(f)) == EOF) {
-		if (ucwidth(0) <= max)
-			usetc(p,0);
-		return NULL;
-	}
-
-	do {
-
-		if (c == '\r' || c == '\n') {
-			/* Technically we should check there's space in the buffer, and if so,
-			 * add a \n.  But pack_fgets has never done this. */
-			if (c == '\r') {
-				/* eat the following \n, if any */
-				c = pack_getc(f);
-				if ((c != '\n') && (c != EOF))
-					pack_ungetc(c, f);
-			}
-			break;
-		}
-
-		/* is there room in the buffer? */
-		if (ucwidth(c) > pmax - p) {
-			pack_ungetc(c, f);
-			c = '\0';
-			break;
-		}
-
-		/* write the character */
-		p += usetc(p, c);
-	}
-	while ((c = pack_getc(f)) != EOF);
-
-	/* terminate the string */
-	usetc(p, 0);
-
-	if (c == '\0' || *allegro_errno)
-		return NULL;
-
-	return orig_p; /* p has changed */
-}
 
 
 

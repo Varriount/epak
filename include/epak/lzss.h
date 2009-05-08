@@ -1,3 +1,4 @@
+// vim:tabstop=4 shiftwidth=4 encoding=utf-8
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
@@ -24,11 +25,6 @@
 #ifdef __cplusplus
 	extern "C" {
 #endif
-
-typedef struct LZSS_PACK_DATA LZSS_PACK_DATA;
-typedef struct LZSS_UNPACK_DATA LZSS_UNPACK_DATA;
-typedef struct PACKFILE PACKFILE;
-
 
 AL_FUNC(LZSS_PACK_DATA *, create_lzss_pack_data, (void));
 AL_FUNC(void, free_lzss_pack_data, (LZSS_PACK_DATA *dat));

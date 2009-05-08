@@ -20,6 +20,7 @@
 
 
 #include "epak/lzss.h"
+#include "epak/file.h"
 
 #include <assert.h>
 #include <stdlib.h>

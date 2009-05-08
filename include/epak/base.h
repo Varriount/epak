@@ -1,3 +1,4 @@
+// vim:tabstop=4 shiftwidth=4 encoding=utf-8
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
@@ -11,23 +12,19 @@
  *      Stripped defines and other stuff to make this compile.
  */
 
-
-/* describe this platform */
-#define ALLEGRO_PLATFORM_STR  "mpw"
-#define ALLEGRO_BIG_ENDIAN
-#undef ALLEGRO_CONSOLE_OK
+#ifndef ALLEGRO_SIMULATED_BASE_H
+#define ALLEGRO_SIMULATED_BASE_H
 
 #define INLINE
-#define ZERO_SIZE_ARRAY(type, name)             type name[64]
-#define AL_CONST				const
-#define AL_VAR(type, name)                      extern type name
-#define AL_ARRAY(type, name)                    extern type name[]
-#define AL_FUNC(type, name, args)               type name args
-#define AL_PRINTFUNC(type, name, args, a, b)    AL_FUNC(type, name, args)
-#define AL_METHOD(type, name, args)             type (*name) args
-#define AL_FUNCPTR(type, name, args)            extern type (*name) args
+#define AL_CONST								const
+#define AL_VAR(type, name)						extern type name
+#define AL_ARRAY(type, name)					extern type name[]
+#define AL_FUNC(type, name, args)				type name args
+#define AL_PRINTFUNC(type, name, args, a, b)	AL_FUNC(type, name, args)
+#define AL_METHOD(type, name, args)				type (*name) args
+#define AL_FUNCPTR(type, name, args)			extern type (*name) args
 
-#define _AL_MALLOC_ATOMIC			malloc
+#define _AL_MALLOC_ATOMIC		malloc
 #define _AL_FREE				free
 #define AL_ASSERT				assert
 
@@ -56,3 +53,10 @@ char *strdup(const char *);
 	#define AL_INLINE(type, name, args, code)    static type name args code
 #endif
 
+typedef struct PACKFILE_VTABLE PACKFILE_VTABLE;
+typedef struct PACKFILE PACKFILE;
+typedef struct LZSS_PACK_DATA LZSS_PACK_DATA;
+typedef struct LZSS_UNPACK_DATA LZSS_UNPACK_DATA;
+
+
+#endif // ALLEGRO_SIMULATED_BASE_H

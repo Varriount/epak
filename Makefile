@@ -2,7 +2,7 @@
 
 default: all
 
-all: example #docs
+all: example docs
 	rm -Rf build
 	xcodebuild -configuration Debug -target "epak"
 	#xcodebuild -configuration Release -target "Build ALL"

@@ -55,21 +55,21 @@
 
 static char the_password[256] = "";
 
-int _packfile_filesize = 0;
-int _packfile_datasize = 0;
+static int _packfile_filesize = 0;
+static int _packfile_datasize = 0;
 
-int _packfile_type = 0;
+static int _packfile_type = 0;
 
 static PACKFILE_VTABLE normal_vtable;
 
 
 
 
-/* _al_sane_strncpy:
+/** _al_sane_strncpy:
  *  strncpy() substitution which properly null terminates a string.
  *  By Henrik Stokseth.
  */
-char *_al_sane_strncpy(char *dest, const char *src, size_t n)
+static char *_al_sane_strncpy(char *dest, const char *src, size_t n)
 {
 	if (n <= 0)
 		return dest;
@@ -79,8 +79,8 @@ char *_al_sane_strncpy(char *dest, const char *src, size_t n)
 	return dest;
 }
 
-// Checks a path, if it is a directory returns non zero.
-int exists_dir(const char *path)
+/// Checks a path, if it is a directory returns non zero.
+static int _exists_dir(const char *path)
 {
 	struct stat buf;
 	if (!stat(path, &buf))
@@ -95,10 +95,38 @@ int exists_dir(const char *path)
  ***************************************************/
 
 
-/* packfile_password:
- *  Sets the password to be used by all future read/write operations.
- *  This only affects "normal" PACKFILEs, i.e. ones not using user-supplied
- *  packfile vtables.
+/** Sets the global encryption password to be used for all read/write
+ * operations on files opened in future using Allegro's packfile
+ * functions (whether they are compressed or not).
+ *
+ * Files written with an encryption
+ * password cannot be read unless the same password is selected, so
+ * be careful: if you forget the key, nobody can make your data come
+ * back again! Pass NULL or an empty string to return to the normal,
+ * non-encrypted mode. If you are using this function to prevent
+ * people getting access to your datafiles, be careful not to store
+ * an obvious copy of the password in your executable: if there are
+ * any strings like "I'm the password for the datafile", it would be
+ * fairly easy to get access to your data :-)
+ *
+ * Note #1: when writing a packfile, you can change the password
+ * to whatever you want after opening the file, without affecting the
+ * write operation. On the contrary, when writing a sub-chunk of a
+ * packfile, you must make sure that the password that was active at
+ * the time the sub-chunk was opened is still active before closing
+ * the sub-chunk. This is guaranteed to be true if you didn't call
+ * the packfile_password() routine in the meantime. Read operations,
+ * either on packfiles or sub-chunks, have no such restriction.
+ *
+ * Note #2: as explained above, the password is used for all
+ * read/write operations on files, including for several functions
+ * of the library that operate on files without explicitly using
+ * packfiles. The unencrypted mode is mandatory
+ * in order for those functions to work. Therefore remember to call
+ * packfile_password(NULL) before using them if you previously changed
+ * the password. As a rule of thumb, always call packfile_password(NULL)
+ * when you are done with operations on packfiles. The only exception
+ * to this is custom packfiles created with pack_fopen_vtable().
  */
 void packfile_password(AL_CONST char *password)
 {
@@ -244,11 +272,12 @@ static void free_packfile(PACKFILE *f)
  *  mode of the file descriptor. Unlike the libc fdopen(), pack_fdopen()
  *  is unable to convert an already partially read or written file (i.e.
  *  the file offset must be 0).
- *  On success, it returns a pointer to a file structure, and on error it
- *  returns NULL and stores an error code in errno. An attempt to read
+ *
+ *  \return On success, it returns a pointer to a file structure, and on error
+ *  it returns NULL and stores an error code in errno. An attempt to read
  *  a normal file in packed mode will cause errno to be set to EDOM.
  */
-PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
+static PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 {
 	PACKFILE *f, *f2;
 	long header = FALSE;
@@ -410,27 +439,36 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 }
 
 
-
-/* pack_fopen:
- *  Opens a file according to mode, which may contain any of the flags:
- *  'r': open file for reading.
- *  'w': open file for writing, overwriting any existing data.
- *  'p': open file in 'packed' mode. Data will be compressed as it is
- *			written to the file, and automatically uncompressed during read
- *			operations. Files created in this mode will produce garbage if
- *			they are read without this flag being set.
- *  '!': open file for writing in normal, unpacked mode, but add the value
- *			F_NOPACK_MAGIC to the start of the file, so that it can be opened
- *			in packed mode and Allegro will automatically detect that the
- *			data does not need to be decompressed.
+/** Opens a file according to mode, which may contain any of the flags:
  *
- *  Instead of these flags, one of the constants F_READ, F_WRITE,
- *  F_READ_PACKED, F_WRITE_PACKED or F_WRITE_NOPACK may be used as the second
- *  argument to fopen().
+ * - r: open file for reading.
+ * - w: open file for writing, overwriting any existing data.
+ * - p: open file in packed mode. Data will be compressed as it is
+ *      written to the file, and automatically uncompressed during read
+ *      operations. Files created in this mode will produce garbage if
+ *      they are read without this flag being set.
+ * - !: open file for writing in normal, unpacked mode, but add the
+ *      value ::F_NOPACK_MAGIC to the start of the file, so that it can later
+ *      be opened in packed mode and Allegro will automatically detect
+ *      that the data does not need to be decompressed.
  *
- *  On success, fopen() returns a pointer to a file structure, and on error
- *  it returns NULL and stores an error code in errno. An attempt to read a
- *  normal file in packed mode will cause errno to be set to EDOM.
+ * Instead of these flags, one of the constants ::F_READ, ::F_WRITE,
+ * ::F_READ_PACKED, ::F_WRITE_PACKED or ::F_WRITE_NOPACK may be used as the
+ * mode parameter.
+ *
+ * Example:
+ * \code
+ *	PACKFILE *input_file;
+ *
+ *	input_file = pack_fopen("scores.dat", "rp");
+ *	if (!input_file)
+ *		abort_on_error("Couldn't read `scores.dat'!");
+ * \endcode
+ *
+ * \return On success, pack_fopen() returns a pointer to a
+ * PACKFILE structure, and on error it returns NULL and stores an
+ * error code in errno. An attempt to read a normal file in packed
+ * mode will cause errno to be set to EDOM.
  */
 PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 {
@@ -460,8 +498,7 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
 
 
-/* pack_fopen_vtable:
- *  Creates a new packfile structure that uses the functions specified in
+/** Creates a new packfile structure that uses the functions specified in
  *  the vtable instead of the standard functions.	On success, it returns a
  *  pointer to a file structure, and on error it returns NULL and
  *  stores an error code in errno.
@@ -500,12 +537,15 @@ PACKFILE *pack_fopen_vtable(AL_CONST PACKFILE_VTABLE *vtable, void *userdata)
 }
 
 
-
-/* pack_fclose:
- *  Closes a file after it has been read or written.
- *  Returns zero on success. On error it returns an error code which is
- *  also stored in errno. This function can fail only when writing to
- *  files: if the file was opened in read mode it will always succeed.
+/** Closes a stream previously opened with pack_fopen() or
+ * pack_fopen_vtable(). After you have closed the stream, performing
+ * operations on it will yield errors in your application (e.g. crash
+ * it) or even block your OS.
+ *
+ * \return Returns zero on success. On error, returns an error code
+ * which is also stored in `errno'. This function can fail only when
+ * writing to files: if the file was opened in read mode, it will
+ * always succeed.
  */
 int pack_fclose(PACKFILE *f)
 {
@@ -524,24 +564,65 @@ int pack_fclose(PACKFILE *f)
 }
 
 
-
-/* pack_fopen_chunk:
- *  Opens a sub-chunk of the specified file, for reading or writing depending
- *  on the type of the file. The returned file pointer describes the sub
- *  chunk, and replaces the original file, which will no longer be valid.
- *  When writing to a chunk file, data is sent to the original file, but
- *  is prefixed with two length counts (32 bit, big-endian). For uncompressed
- *  chunks these will both be set to the length of the data in the chunk.
- *  For compressed chunks, created by setting the pack flag, the first will
- *  contain the raw size of the chunk, and the second will be the negative
- *  size of the uncompressed data. When reading chunks, the pack flag is
- *  ignored, and the compression type is detected from the sign of the
- *  second size value. The file structure used to read chunks checks the
- *  chunk size, and will return EOF if you try to read past the end of
- *  the chunk. If you don't read all of the chunk data, when you call
- *  pack_fclose_chunk(), the parent file will advance past the unused data.
- *  When you have finished reading or writing a chunk, you should call
- *  pack_fclose_chunk() to return to your original file.
+/** Opens a sub-chunk of a file. A chunk provides a logical view of
+ * part of a file, which can be compressed as an individual entity
+ * and will automatically insert and check length counts to prevent
+ * reading past the end of the chunk. The PACKFILE parameter is a
+ * previously opened file, and `pack' is a boolean parameter which
+ * will turn compression on for the sub-chunk if it is non-zero.
+ *
+ * Example:
+ * \code
+ *	PACKFILE *output = pack_fopen("out.raw", "w!");
+ *	...
+ *	// Create a sub-chunk with compression.
+ *	output = pack_fopen(chunk(output, 1);
+ *	if (!output)
+ *	   abort_on_error("Error saving data!");
+ *	// Write some data to the sub-chunk.
+ *	...
+ *	// Close the sub-chunk, recovering parent file.
+ *	output = pack_fclose_chunk(output);
+ * \endcode
+ *
+ * The data written to the chunk will be prefixed with two length
+ * counts (32-bit, a.k.a. big-endian). For uncompressed chunks these
+ * will both be set to the size of the data in the chunk. For compressed
+ * chunks (created by setting the `pack' flag), the first length will
+ * be the raw size of the chunk, and the second will be the negative
+ * size of the uncompressed data.
+ *
+ * To read the chunk, use the following code:
+ * \code
+ *	PACKFILE *input = pack_fopen("out.raw", "rp");
+ *	...
+ *	input = pack_fopen_chunk(input, 1);
+ *	// Read data from the sub-chunk and close it.
+ *	...
+ *	input = pack_fclose_chunk(input);
+ * \endcode
+ *
+ * This sequence will read the length counts created when the chunk
+ * was written, and automatically decompress the contents of the chunk
+ * if it was compressed. The length will also be used to prevent
+ * reading past the end of the chunk (Allegro will return EOF if you
+ * attempt this), and to automatically skip past any unread chunk
+ * data when you call pack_fclose_chunk(). This means that you can skip
+ * a whole chunk by calling pack_fopen_chunk() and pack_fclose_chunk() in
+ * sucession.
+ *
+ * Chunks can be nested inside each other by making repeated calls
+ * to pack_fopen_chunk(). When writing a file, the compression status
+ * is inherited from the parent file, so you only need to set the
+ * pack flag if the parent is not compressed but you want to pack the
+ * chunk data. If the parent file is already open in packed mode,
+ * setting the pack flag will result in data being compressed twice:
+ * once as it is written to the chunk, and again as the chunk passes
+ * it on to the parent file.
+ *
+ * \return Returns a pointer to the sub-chunked PACKFILE, or NULL
+ * if there was some error (eg. you are using a custom PACKFILE
+ * vtable).
  */
 PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 {
@@ -571,7 +652,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 		else if (getenv("TMP")) {
 			tmp_dir = strdup(getenv("TMP"));
 		}
-		else if (exists_dir("/tmp")) {
+		else if (_exists_dir("/tmp")) {
 			tmp_dir = strdup("/tmp");
 		}
 		else if (getenv("HOME")) {
@@ -663,12 +744,12 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 }
 
 
-
-/* pack_fclose_chunk:
- *  Call after reading or writing a sub-chunk. This closes the chunk file,
- *  and returns a pointer to the original file structure (the one you
- *  passed to pack_fopen_chunk()), to allow you to read or write data
- *  after the chunk. If an error occurs, returns NULL and sets errno.
+/** Closes a sub-chunk of a file, previously obtained by calling
+ * pack_fopen_chunk().
+ *
+ * \return Returns a pointer to the parent of the sub-chunk you
+ * just closed. Returns NULL if there was some error (eg. you tried
+ * to close a PACKFILE which wasn't sub-chunked).
  */
 PACKFILE *pack_fclose_chunk(PACKFILE *f)
 {
@@ -765,9 +846,24 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 
 
 
-/* pack_fseek:
- *  Like the stdio fseek() function, but only supports forward seeks
- *  relative to the current file position.
+/** Seeks inside a stream.
+ * Unlike the standard fseek() function, this only supports forward movements
+ * relative to the current position and in read-only streams, so don't
+ * use negative offsets. Note that seeking is very slow when reading
+ * compressed files, and so should be avoided unless you are sure
+ * that the file is not compressed.
+ *
+ * Example:
+ * \code
+ *	input_file = pack_fopen("data.bin", "r");
+ *	if (!input_file)
+ *		abort_on_error("Couldn't open binary data!");
+ *	// Skip some useless header before reading data.
+ *	pack_fseek(input_file, 32);
+ * \endcode
+ *
+ * \return Returns zero on success or a negative number on error,
+ * storing the error code in `errno'.
  */
 int pack_fseek(PACKFILE *f, int offset)
 {
@@ -779,9 +875,9 @@ int pack_fseek(PACKFILE *f, int offset)
 
 
 
-/* pack_getc:
- *  Returns the next character from the stream f, or EOF if the end of the
- *  file has been reached.
+/**
+ * Returns the next character from the stream f, or EOF if the end of the
+ * file has been reached.
  */
 int pack_getc(PACKFILE *f)
 {
@@ -794,8 +890,8 @@ int pack_getc(PACKFILE *f)
 
 
 
-/* pack_putc:
- *  Puts a character in the stream f.
+/**
+ * Puts a character in the stream f.
  */
 int pack_putc(int c, PACKFILE *f)
 {
@@ -808,10 +904,14 @@ int pack_putc(int c, PACKFILE *f)
 
 
 
-/* pack_feof:
- *  pack_feof() returns nonzero as soon as you reach the end of the file. It
- *  does not wait for you to attempt to read beyond the end of the file,
- *  contrary to the ISO C feof() function.
+/** Returns nonzero as soon as you reach the end of the file.
+ * It does not wait for you to attempt to read beyond the end of
+ * the file, contrary to the ISO C feof() function. The only way to
+ * know whether you have read beyond the end of the file is to check
+ * the return value of the read operation you use (and be wary of
+ * pack_*getl() as EOF is also a valid return value with these functions).
+ *
+ * \return Returns non-zero if you are at the end of the file, zero otherwise.
  */
 int pack_feof(PACKFILE *f)
 {
@@ -824,9 +924,16 @@ int pack_feof(PACKFILE *f)
 
 
 
-/* pack_ferror:
- *  Returns nonzero if the error indicator for the stream is set, indicating
- *  that an error has occurred during a previous operation on the stream.
+/**Tells if an error occurred during an operation on the stream.
+ * Since EOF is used to report errors by some functions, it's often
+ * better to use the pack_feof() function to check explicitly for end
+ * of file and pack_ferror() to check for errors. Both functions check
+ * indicators that are part of the internal state of the stream to
+ * detect correctly the different situations.
+ *
+ * \return Returns nonzero if the error indicator for the stream
+ * is set, meaning that an error has occurred during a previous
+ * operation on the stream.
  */
 int pack_ferror(PACKFILE *f)
 {
@@ -839,8 +946,8 @@ int pack_ferror(PACKFILE *f)
 
 
 
-/* pack_igetw:
- *  Reads a 16 bit word from a file, using intel byte ordering.
+/**
+ * Reads a 16 bit word from a file, using intel byte ordering.
  */
 int pack_igetw(PACKFILE *f)
 {
@@ -856,7 +963,7 @@ int pack_igetw(PACKFILE *f)
 
 
 
-/* pack_igetl:
+/**
  *  Reads a 32 bit long from a file, using intel byte ordering.
  */
 long pack_igetl(PACKFILE *f)
@@ -876,7 +983,7 @@ long pack_igetl(PACKFILE *f)
 
 
 
-/* pack_iputw:
+/**
  *  Writes a 16 bit int to a file, using intel byte ordering.
  */
 int pack_iputw(int w, PACKFILE *f)
@@ -896,7 +1003,7 @@ int pack_iputw(int w, PACKFILE *f)
 
 
 
-/* pack_iputl:
+/**
  *  Writes a 32 bit long to a file, using intel byte ordering.
  */
 long pack_iputl(long l, PACKFILE *f)
@@ -920,7 +1027,7 @@ long pack_iputl(long l, PACKFILE *f)
 
 
 
-/* pack_mgetw:
+/**
  *  Reads a 16 bit int from a file, using motorola byte-ordering.
  */
 int pack_mgetw(PACKFILE *f)
@@ -937,8 +1044,8 @@ int pack_mgetw(PACKFILE *f)
 
 
 
-/* pack_mgetl:
- *  Reads a 32 bit long from a file, using motorola byte-ordering.
+/**
+ * Reads a 32 bit long from a file, using motorola byte-ordering.
  */
 long pack_mgetl(PACKFILE *f)
 {
@@ -957,7 +1064,7 @@ long pack_mgetl(PACKFILE *f)
 
 
 
-/* pack_mputw:
+/**
  *  Writes a 16 bit int to a file, using motorola byte-ordering.
  */
 int pack_mputw(int w, PACKFILE *f)
@@ -977,7 +1084,7 @@ int pack_mputw(int w, PACKFILE *f)
 
 
 
-/* pack_mputl:
+/**
  *  Writes a 32 bit long to a file, using motorola byte-ordering.
  */
 long pack_mputl(long l, PACKFILE *f)
@@ -1001,10 +1108,18 @@ long pack_mputl(long l, PACKFILE *f)
 
 
 
-/* pack_fread:
- *  Reads n bytes from f and stores them at memory location p. Returns the
- *  number of items read, which will be less than n if EOF is reached or an
- *  error occurs. Error codes are stored in errno.
+/** Reads n bytes from f and stores them at memory location p.
+ * Example:
+ * \code
+ *	unsigned char buf[256];
+ *	...
+ *	if (256 != pack_fread(buf, 256, input_file))
+ *		abort_on_error("Truncated input file!");
+ * \endcode
+ *
+ * \return Returns the number of bytes read, which will be less
+ * than `n' if EOF is reached or an error occurs. Error codes are
+ * stored in errno.
  */
 long pack_fread(void *p, long n, PACKFILE *f)
 {
@@ -1019,8 +1134,10 @@ long pack_fread(void *p, long n, PACKFILE *f)
 
 
 
-/* pack_fwrite:
- *  Writes n bytes to the file f from memory location p. Returns the number
+/**
+ *  Writes n bytes to the file f from memory location p.
+ *
+ *  \return Returns the number
  *  of items written, which will be less than n if an error occurs. Error
  *  codes are stored in errno.
  */
@@ -1037,10 +1154,13 @@ long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
 
 
 
-/* pack_ungetc:
- *  Puts a character back in the file's input buffer. It only works
- *  for characters just fetched by pack_getc and, like ungetc, only a
- *  single push back is guaranteed.
+/** Moves one single character back to the input buffer.
+ * Like with ungetc from libc, only a single push back is guaranteed.
+ *
+ * Note: pack_fgets internally uses pack_ungetc(), so never use
+ * pack_ungetc() directly after using pack_fgets() on a PACKFILE.
+ *
+ * \return Returns c on success, or EOF on error.
  */
 int pack_ungetc(int c, PACKFILE *f)
 {

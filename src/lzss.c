@@ -94,7 +94,7 @@ struct LZSS_UNPACK_DATA				/* for reading LZ files */
 
 /*** Compression (writing) ***/
 
-/* create_lzss_pack_data:
+/**
  *  Creates a PACK_DATA structure.
  */
 LZSS_PACK_DATA *create_lzss_pack_data(void)
@@ -117,7 +117,7 @@ LZSS_PACK_DATA *create_lzss_pack_data(void)
 
 
 
-/* free_lzss_pack_data:
+/**
  *  Frees an LZSS_PACK_DATA structure.
  */
 void free_lzss_pack_data(LZSS_PACK_DATA *dat)
@@ -129,7 +129,7 @@ void free_lzss_pack_data(LZSS_PACK_DATA *dat)
 
 
 
-/* lzss_inittree:
+/**
  *  For i = 0 to N-1, rson[i] and lson[i] will be the right and left
  *  children of node i. These nodes need not be initialized. Also, dad[i]
  *  is the parent of node i. These are initialized to N, which stands for
@@ -150,7 +150,7 @@ static void lzss_inittree(LZSS_PACK_DATA *dat)
 
 
 
-/* lzss_insertnode:
+/**
  *  Inserts a string of length F, text_buf[r..r+F-1], into one of the trees
  *  (text_buf[r]'th tree) and returns the longest-match position and length
  *  via match_position and match_length. If match_length = F, then removes
@@ -216,7 +216,7 @@ static void lzss_insertnode(int r, LZSS_PACK_DATA *dat)
 
 
 
-/* lzss_deletenode:
+/**
  *  Removes a node from a tree.
  */
 static void lzss_deletenode(int p, LZSS_PACK_DATA *dat)
@@ -257,7 +257,7 @@ static void lzss_deletenode(int p, LZSS_PACK_DATA *dat)
 
 
 
-/* lzss_write:
+/**
  *  Packs size bytes from buf, using the pack information contained in dat.
  *  Returns 0 on success.
  */
@@ -330,8 +330,8 @@ int lzss_write(PACKFILE *file, LZSS_PACK_DATA *dat, int size, unsigned char *buf
 			/* send position and length pair. Note match_length > THRESHOLD */
 			dat->code_buf[code_buf_ptr++] = (unsigned char) dat->match_position;
 			dat->code_buf[code_buf_ptr++] = (unsigned char)
-									 (((dat->match_position >> 4) & 0xF0) |
-									  (dat->match_length - (THRESHOLD + 1)));
+						 (((dat->match_position >> 4) & 0xF0) |
+						  (dat->match_length - (THRESHOLD + 1)));
 		}
 
 		if ((mask <<= 1) == 0) {			/* shift mask left one bit */
@@ -431,7 +431,7 @@ int lzss_write(PACKFILE *file, LZSS_PACK_DATA *dat, int size, unsigned char *buf
 
 /*** Decompression (reading) ***/
 
-/* create_unpack_data:
+/**
  *  Creates an LZSS_UNPACK_DATA structure.
  */
 LZSS_UNPACK_DATA *create_lzss_unpack_data(void)
@@ -454,7 +454,7 @@ LZSS_UNPACK_DATA *create_lzss_unpack_data(void)
 
 
 
-/* free_lzss_unpack_data:
+/**
  *  Frees an LZSS_UNPACK_DATA structure.
  */
 void free_lzss_unpack_data(LZSS_UNPACK_DATA *dat)
@@ -466,7 +466,7 @@ void free_lzss_unpack_data(LZSS_UNPACK_DATA *dat)
 
 
 
-/* lzss_read:
+/**
  *  Unpacks from dat into buf, until either EOF is reached or s bytes have
  *  been extracted. Returns the number of bytes added to the buffer
  */
@@ -557,7 +557,7 @@ int lzss_read(PACKFILE *file, LZSS_UNPACK_DATA *dat, int s, unsigned char *buf)
 
 
 
-/* _al_lzss_incomplete_state:
+/**
  *  Return non-zero if the previous lzss_read() call was in the middle of
  *  unpacking a sequence of bytes into the supplied buffer, but had to suspend
  *  because the buffer wasn't big enough.

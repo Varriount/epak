@@ -1,4 +1,4 @@
-.PHONY: docs example
+.PHONY: docs example python
 
 CC = gcc
 OBJ_DIR = obj
@@ -25,7 +25,7 @@ $(TARGET_LIB): $(LIB_NAME)
 	install -c $(wildcard include/epak/*.h) $(INCDIR2)
 	install -c $(LIB_NAME) $(LIBDIR)
 
-all: example docs
+all: python example docs
 	rm -Rf build
 	xcodebuild -configuration Debug -target "epak"
 	#xcodebuild -configuration Release -target "Build ALL"
@@ -49,6 +49,10 @@ example: $(LIB_NAME)
 	(cd example && ./pretest && cd ..)
 	mv example/pretest example/test
 
+python:
+	./setup.py build
+	echo "Python module built"
+
 docs:
 	doxygen
 
@@ -56,7 +60,7 @@ test:
 	scan-build xcodebuild -configuration Debug -target "epak"
 
 clean:
-	rm -Rf obj build example/test example/pretest example/*.epak
+	rm -Rf docs obj build tags example/test example/pretest example/*.epak
 
 ctags:
 	~/bin/objctags -R src include

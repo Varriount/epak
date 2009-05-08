@@ -8,8 +8,8 @@ from distutils.core import setup, Extension
 
 include_dirs = ["include"]
 lib_dirs = ["obj"]
-libraries = ["libepak.a"]
-extra_compile_args = ["-Wall", "-W ", "-Werror",  "-Wno-unused",
+libraries = ["epak"]
+extra_compile_args = ["-Wall", "-W", "-Werror",  "-Wno-unused",
 	"-Wno-long-double",  "-g",  "-fno-common",  "-pipe"]
 extra_link_args = ["-gA"]
 

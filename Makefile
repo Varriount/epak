@@ -26,11 +26,11 @@ $(TARGET_LIB): $(LIB_NAME)
 	install -c $(LIB_NAME) $(LIBDIR)
 
 all: python example docs
-	rm -Rf build
 	xcodebuild -configuration Debug -target "epak"
 	#xcodebuild -configuration Release -target "Build ALL"
+	@echo "Now that the code is built, run make install."
 
-install: $(TARGET_LIB)
+install: $(TARGET_LIB) install_python
 	@echo "Installed locally"
 
 lib: $(LIB_NAME)
@@ -52,6 +52,9 @@ example: $(LIB_NAME)
 python:
 	./setup.py build
 	echo "Python module built"
+
+install_python: python
+	./setup.py install
 
 docs:
 	doxygen

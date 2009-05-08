@@ -9,5 +9,8 @@
 archive
 build
 docs
+example/*.epak
+example/pretest
+example/test
 profile
 tags

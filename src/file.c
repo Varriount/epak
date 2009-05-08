@@ -128,7 +128,7 @@ static int _exists_dir(const char *path)
  * when you are done with operations on packfiles. The only exception
  * to this is custom packfiles created with pack_fopen_vtable().
  */
-void packfile_password(AL_CONST char *password)
+void packfile_password(const char *password)
 {
 	int i = 0;
 	int c;
@@ -266,7 +266,7 @@ static void free_packfile(PACKFILE *f)
 
 
 
-/* _pack_fdopen:
+/**
  *  Converts the given file descriptor into a PACKFILE. The mode can have
  *  the same values as for pack_fopen() and must be compatible with the
  *  mode of the file descriptor. Unlike the libc fdopen(), pack_fdopen()
@@ -470,7 +470,7 @@ static PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
  * error code in errno. An attempt to read a normal file in packed
  * mode will cause errno to be set to EDOM.
  */
-PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
+PACKFILE *pack_fopen(const char *filename, const char *mode)
 {
 	int fd;
 	AL_ASSERT(filename);
@@ -512,7 +512,7 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
  *  packfile_password() does not have any effect on packfiles opened
  *  with pack_fopen_vtable().
  */
-PACKFILE *pack_fopen_vtable(AL_CONST PACKFILE_VTABLE *vtable, void *userdata)
+PACKFILE *pack_fopen_vtable(const PACKFILE_VTABLE *vtable, void *userdata)
 {
 	PACKFILE *f;
 	AL_ASSERT(vtable);
@@ -1141,7 +1141,7 @@ long pack_fread(void *p, long n, PACKFILE *f)
  *  of items written, which will be less than n if an error occurs. Error
  *  codes are stored in errno.
  */
-long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
+long pack_fwrite(const void *p, long n, PACKFILE *f)
 {
 	AL_ASSERT(f);
 	AL_ASSERT(f->vtable);

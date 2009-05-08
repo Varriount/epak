@@ -9,12 +9,18 @@
 /* Begin PBXBuildFile section */
 		AA747D9F0F9514B9006C5449 /* epak_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* epak_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+		D51854690FB43BF900CB0B25 /* lzss.c in Sources */ = {isa = PBXBuildFile; fileRef = D51854680FB43BF900CB0B25 /* lzss.c */; };
+		D518546E0FB43E2C00CB0B25 /* base.h in Headers */ = {isa = PBXBuildFile; fileRef = D518546C0FB43E2C00CB0B25 /* base.h */; };
+		D518546F0FB43E2C00CB0B25 /* lzss.h in Headers */ = {isa = PBXBuildFile; fileRef = D518546D0FB43E2C00CB0B25 /* lzss.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		AA747D9E0F9514B9006C5449 /* epak_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = epak_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* libepak.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libepak.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D51854680FB43BF900CB0B25 /* lzss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lzss.c; path = src/lzss.c; sourceTree = "<group>"; };
+		D518546C0FB43E2C00CB0B25 /* base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base.h; path = include/epak/base.h; sourceTree = "<group>"; };
+		D518546D0FB43E2C00CB0B25 /* lzss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lzss.h; path = include/epak/lzss.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,6 +46,8 @@
 		0867D691FE84028FC02AAC07 /* epak */ = {
 			isa = PBXGroup;
 			children = (
+				D518546B0FB43E1800CB0B25 /* include */,
+				D51854670FB43BEA00CB0B25 /* src */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
 				034768DFFF38A50411DB9C8B /* Products */,
@@ -63,6 +71,23 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
+		D51854670FB43BEA00CB0B25 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				D51854680FB43BF900CB0B25 /* lzss.c */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		D518546B0FB43E1800CB0B25 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				D518546C0FB43E2C00CB0B25 /* base.h */,
+				D518546D0FB43E2C00CB0B25 /* lzss.h */,
+			);
+			name = include;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -71,6 +96,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA747D9F0F9514B9006C5449 /* epak_Prefix.pch in Headers */,
+				D518546E0FB43E2C00CB0B25 /* base.h in Headers */,
+				D518546F0FB43E2C00CB0B25 /* lzss.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,6 +144,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D51854690FB43BF900CB0B25 /* lzss.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

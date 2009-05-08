@@ -19,8 +19,11 @@
  */
 
 
-//#include "allegro.h"
-//#include "allegro/internal/aintern.h"
+#include "epak/lzss.h"
+
+#include <assert.h>
+#include <stdlib.h>
+#include <sys/errno.h>
 
 
 /*
@@ -59,7 +62,6 @@
 #define F				18			/* upper limit for LZ match length */
 #define THRESHOLD		2			/* LZ encode string into pos and length
 									   if match size is greater than this */
-
 
 struct LZSS_PACK_DATA					/* stuff for doing LZ compression */
 {
@@ -100,7 +102,7 @@ LZSS_PACK_DATA *create_lzss_pack_data(void)
 	int c;
 
 	if ((dat = _AL_MALLOC_ATOMIC(sizeof(LZSS_PACK_DATA))) == NULL) {
-		*allegro_errno = ENOMEM;
+		errno = ENOMEM;
 		return NULL;
 	}
 
@@ -119,7 +121,7 @@ LZSS_PACK_DATA *create_lzss_pack_data(void)
  */
 void free_lzss_pack_data(LZSS_PACK_DATA *dat)
 {
-	ASSERT(dat);
+	AL_ASSERT(dat);
 
 	_AL_FREE(dat);
 }
@@ -437,7 +439,7 @@ LZSS_UNPACK_DATA *create_lzss_unpack_data(void)
 	int c;
 
 	if ((dat = _AL_MALLOC_ATOMIC(sizeof(LZSS_UNPACK_DATA))) == NULL) {
-		*allegro_errno = ENOMEM;
+		errno = ENOMEM;
 		return NULL;
 	}
 
@@ -456,7 +458,7 @@ LZSS_UNPACK_DATA *create_lzss_unpack_data(void)
  */
 void free_lzss_unpack_data(LZSS_UNPACK_DATA *dat)
 {
-	ASSERT(dat);
+	AL_ASSERT(dat);
 
 	_AL_FREE(dat);
 }

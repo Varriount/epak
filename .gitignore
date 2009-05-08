@@ -11,6 +11,8 @@ build
 docs
 example/*.epak
 example/pretest
+example/pretest.dSYM
 example/test
+obj
 profile
 tags

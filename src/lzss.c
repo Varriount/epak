@@ -1,6 +1,7 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+// vim:tabstop=4 shiftwidth=4 encoding=utf-8
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -18,16 +19,16 @@
  */
 
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
+//#include "allegro.h"
+//#include "allegro/internal/aintern.h"
 
 
 /*
    This compression algorithm is based on the ideas of Lempel and Ziv,
-   with the modifications suggested by Storer and Szymanski. The algorithm 
-   is based on the use of a ring buffer, which initially contains zeros. 
-   We read several characters from the file into the buffer, and then 
-   search the buffer for the longest string that matches the characters 
+   with the modifications suggested by Storer and Szymanski. The algorithm
+   is based on the use of a ring buffer, which initially contains zeros.
+   We read several characters from the file into the buffer, and then
+   search the buffer for the longest string that matches the characters
    just read, and output the length and position of the match in the buffer.
 
    With a buffer size of 4096 bytes, the position can be encoded in 12
@@ -47,40 +48,43 @@
 
    Modified for use in the Allegro filesystem by Shawn Hargreaves.
 
+   Porting and customization for iPhone, Grzegorz Adam Hankiewicz,
+   Electric Hands Software.
+
    Use, distribute, and modify this code freely.
 */
 
 
-#define N            4096           /* 4k buffers for LZ compression */
-#define F            18             /* upper limit for LZ match length */
-#define THRESHOLD    2              /* LZ encode string into pos and length
-				       if match size is greater than this */
+#define N				4096		/* 4k buffers for LZ compression */
+#define F				18			/* upper limit for LZ match length */
+#define THRESHOLD		2			/* LZ encode string into pos and length
+									   if match size is greater than this */
 
 
-struct LZSS_PACK_DATA               /* stuff for doing LZ compression */
+struct LZSS_PACK_DATA					/* stuff for doing LZ compression */
 {
-   int state;                       /* where have we got to in the pack? */
-   int i, c, len, r, s;
-   int last_match_length, code_buf_ptr;
-   unsigned char mask;
-   char code_buf[17];
-   int match_position;
-   int match_length;
-   int lson[N+1];                   /* left children, */
-   int rson[N+257];                 /* right children, */
-   int dad[N+1];                    /* and parents, = binary search trees */
-   unsigned char text_buf[N+F-1];   /* ring buffer, with F-1 extra bytes
-				       for string comparison */
+	int state;							/* where have we got to in the pack? */
+	int i, c, len, r, s;
+	int last_match_length, code_buf_ptr;
+	unsigned char mask;
+	char code_buf[17];
+	int match_position;
+	int match_length;
+	int lson[N+1];					/* left children, */
+	int rson[N+257];				/* right children, */
+	int dad[N+1];					/* and parents, = binary search trees */
+	unsigned char text_buf[N+F-1];	/* ring buffer, with F-1 extra bytes
+									   for string comparison */
 };
 
 
-struct LZSS_UNPACK_DATA             /* for reading LZ files */
+struct LZSS_UNPACK_DATA				/* for reading LZ files */
 {
-   int state;                       /* where have we got to? */
-   int i, j, k, r, c;
-   int flags;
-   unsigned char text_buf[N+F-1];   /* ring buffer, with F-1 extra bytes
-				       for string comparison */
+	int state;						/* where have we got to? */
+	int i, j, k, r, c;
+	int flags;
+	unsigned char text_buf[N+F-1];	/* ring buffer, with F-1 extra bytes
+									   for string comparison */
 };
 
 
@@ -92,20 +96,20 @@ struct LZSS_UNPACK_DATA             /* for reading LZ files */
  */
 LZSS_PACK_DATA *create_lzss_pack_data(void)
 {
-   LZSS_PACK_DATA *dat;
-   int c;
+	LZSS_PACK_DATA *dat;
+	int c;
 
-   if ((dat = _AL_MALLOC_ATOMIC(sizeof(LZSS_PACK_DATA))) == NULL) {
-      *allegro_errno = ENOMEM;
-      return NULL;
-   }
+	if ((dat = _AL_MALLOC_ATOMIC(sizeof(LZSS_PACK_DATA))) == NULL) {
+		*allegro_errno = ENOMEM;
+		return NULL;
+	}
 
-   for (c=0; c < N - F; c++)
-      dat->text_buf[c] = 0;
+	for (c=0; c < N - F; c++)
+		dat->text_buf[c] = 0;
 
-   dat->state = 0;
+	dat->state = 0;
 
-   return dat;
+	return dat;
 }
 
 
@@ -115,96 +119,96 @@ LZSS_PACK_DATA *create_lzss_pack_data(void)
  */
 void free_lzss_pack_data(LZSS_PACK_DATA *dat)
 {
-   ASSERT(dat);
+	ASSERT(dat);
 
-   _AL_FREE(dat);
+	_AL_FREE(dat);
 }
 
 
 
 /* lzss_inittree:
- *  For i = 0 to N-1, rson[i] and lson[i] will be the right and left 
- *  children of node i. These nodes need not be initialized. Also, dad[i] 
- *  is the parent of node i. These are initialized to N, which stands for 
- *  'not used.' For i = 0 to 255, rson[N+i+1] is the root of the tree for 
- *  strings that begin with character i. These are initialized to N. Note 
+ *  For i = 0 to N-1, rson[i] and lson[i] will be the right and left
+ *  children of node i. These nodes need not be initialized. Also, dad[i]
+ *  is the parent of node i. These are initialized to N, which stands for
+ *  'not used.' For i = 0 to 255, rson[N+i+1] is the root of the tree for
+ *  strings that begin with character i. These are initialized to N. Note
  *  there are 256 trees.
  */
 static void lzss_inittree(LZSS_PACK_DATA *dat)
 {
-   int i;
+	int i;
 
-   for (i=N+1; i<=N+256; i++)
-      dat->rson[i] = N;
+	for (i=N+1; i<=N+256; i++)
+		dat->rson[i] = N;
 
-   for (i=0; i<N; i++)
-      dat->dad[i] = N;
+	for (i=0; i<N; i++)
+		dat->dad[i] = N;
 }
 
 
 
 /* lzss_insertnode:
- *  Inserts a string of length F, text_buf[r..r+F-1], into one of the trees 
- *  (text_buf[r]'th tree) and returns the longest-match position and length 
- *  via match_position and match_length. If match_length = F, then removes 
- *  the old node in favor of the new one, because the old one will be 
- *  deleted sooner. Note r plays double role, as tree node and position in 
- *  the buffer. 
+ *  Inserts a string of length F, text_buf[r..r+F-1], into one of the trees
+ *  (text_buf[r]'th tree) and returns the longest-match position and length
+ *  via match_position and match_length. If match_length = F, then removes
+ *  the old node in favor of the new one, because the old one will be
+ *  deleted sooner. Note r plays double role, as tree node and position in
+ *  the buffer.
  */
 static void lzss_insertnode(int r, LZSS_PACK_DATA *dat)
 {
-   int i, p, cmp;
-   unsigned char *key;
-   unsigned char *text_buf = dat->text_buf;
+	int i, p, cmp;
+	unsigned char *key;
+	unsigned char *text_buf = dat->text_buf;
 
-   cmp = 1;
-   key = &text_buf[r];
-   p = N + 1 + key[0];
-   dat->rson[r] = dat->lson[r] = N;
-   dat->match_length = 0;
+	cmp = 1;
+	key = &text_buf[r];
+	p = N + 1 + key[0];
+	dat->rson[r] = dat->lson[r] = N;
+	dat->match_length = 0;
 
-   for (;;) {
+	for (;;) {
 
-      if (cmp >= 0) {
-	 if (dat->rson[p] != N)
-	    p = dat->rson[p];
-	 else {
-	    dat->rson[p] = r;
-	    dat->dad[r] = p;
-	    return;
-	 }
-      }
-      else {
-	 if (dat->lson[p] != N)
-	    p = dat->lson[p];
-	 else {
-	    dat->lson[p] = r;
-	    dat->dad[r] = p;
-	    return;
-	 }
-      }
+		if (cmp >= 0) {
+			if (dat->rson[p] != N)
+				p = dat->rson[p];
+			else {
+				dat->rson[p] = r;
+				dat->dad[r] = p;
+				return;
+			}
+		}
+		else {
+			if (dat->lson[p] != N)
+				p = dat->lson[p];
+			else {
+				dat->lson[p] = r;
+				dat->dad[r] = p;
+				return;
+			}
+		}
 
-      for (i = 1; i < F; i++)
-	 if ((cmp = key[i] - text_buf[p + i]) != 0)
-	    break;
+		for (i = 1; i < F; i++)
+			if ((cmp = key[i] - text_buf[p + i]) != 0)
+				break;
 
-      if (i > dat->match_length) {
-	 dat->match_position = p;
-	 if ((dat->match_length = i) >= F)
-	    break;
-      }
-   }
+		if (i > dat->match_length) {
+			dat->match_position = p;
+			if ((dat->match_length = i) >= F)
+				break;
+		}
+	}
 
-   dat->dad[r] = dat->dad[p];
-   dat->lson[r] = dat->lson[p];
-   dat->rson[r] = dat->rson[p];
-   dat->dad[dat->lson[p]] = r;
-   dat->dad[dat->rson[p]] = r;
-   if (dat->rson[dat->dad[p]] == p)
-      dat->rson[dat->dad[p]] = r;
-   else
-      dat->lson[dat->dad[p]] = r;
-   dat->dad[p] = N;                 /* remove p */
+	dat->dad[r] = dat->dad[p];
+	dat->lson[r] = dat->lson[p];
+	dat->rson[r] = dat->rson[p];
+	dat->dad[dat->lson[p]] = r;
+	dat->dad[dat->rson[p]] = r;
+	if (dat->rson[dat->dad[p]] == p)
+		dat->rson[dat->dad[p]] = r;
+	else
+		dat->lson[dat->dad[p]] = r;
+	dat->dad[p] = N;						/* remove p */
 }
 
 
@@ -214,38 +218,38 @@ static void lzss_insertnode(int r, LZSS_PACK_DATA *dat)
  */
 static void lzss_deletenode(int p, LZSS_PACK_DATA *dat)
 {
-   int q;
+	int q;
 
-   if (dat->dad[p] == N)
-      return;     /* not in tree */
+	if (dat->dad[p] == N)
+		return;		/* not in tree */
 
-   if (dat->rson[p] == N)
-      q = dat->lson[p];
-   else
-      if (dat->lson[p] == N)
-	 q = dat->rson[p];
-      else {
-	 q = dat->lson[p];
-	 if (dat->rson[q] != N) {
-	    do {
-	       q = dat->rson[q];
-	    } while (dat->rson[q] != N);
-	    dat->rson[dat->dad[q]] = dat->lson[q];
-	    dat->dad[dat->lson[q]] = dat->dad[q];
-	    dat->lson[q] = dat->lson[p];
-	    dat->dad[dat->lson[p]] = q;
-	 }
-	 dat->rson[q] = dat->rson[p];
-	 dat->dad[dat->rson[p]] = q;
-      }
+	if (dat->rson[p] == N)
+		q = dat->lson[p];
+	else
+		if (dat->lson[p] == N)
+			q = dat->rson[p];
+		else {
+			q = dat->lson[p];
+			if (dat->rson[q] != N) {
+				do {
+					q = dat->rson[q];
+				} while (dat->rson[q] != N);
+				dat->rson[dat->dad[q]] = dat->lson[q];
+				dat->dad[dat->lson[q]] = dat->dad[q];
+				dat->lson[q] = dat->lson[p];
+				dat->dad[dat->lson[p]] = q;
+			}
+			dat->rson[q] = dat->rson[p];
+			dat->dad[dat->rson[p]] = q;
+		}
 
-   dat->dad[q] = dat->dad[p];
-   if (dat->rson[dat->dad[p]] == p)
-      dat->rson[dat->dad[p]] = q;
-   else
-      dat->lson[dat->dad[p]] = q;
+	dat->dad[q] = dat->dad[p];
+	if (dat->rson[dat->dad[p]] == p)
+		dat->rson[dat->dad[p]] = q;
+	else
+		dat->lson[dat->dad[p]] = q;
 
-   dat->dad[p] = N;
+	dat->dad[p] = N;
 }
 
 
@@ -256,168 +260,168 @@ static void lzss_deletenode(int p, LZSS_PACK_DATA *dat)
  */
 int lzss_write(PACKFILE *file, LZSS_PACK_DATA *dat, int size, unsigned char *buf, int last)
 {
-   int i = dat->i;
-   int c = dat->c;
-   int len = dat->len;
-   int r = dat->r;
-   int s = dat->s;
-   int last_match_length = dat->last_match_length;
-   int code_buf_ptr = dat->code_buf_ptr;
-   unsigned char mask = dat->mask;
-   int ret = 0;
+	int i = dat->i;
+	int c = dat->c;
+	int len = dat->len;
+	int r = dat->r;
+	int s = dat->s;
+	int last_match_length = dat->last_match_length;
+	int code_buf_ptr = dat->code_buf_ptr;
+	unsigned char mask = dat->mask;
+	int ret = 0;
 
-   if (dat->state==2)
-      goto pos2;
-   else
-      if (dat->state==1)
-	 goto pos1;
+	if (dat->state==2)
+		goto pos2;
+	else
+		if (dat->state==1)
+			goto pos1;
 
-   dat->code_buf[0] = 0;
-      /* code_buf[1..16] saves eight units of code, and code_buf[0] works
-	 as eight flags, "1" representing that the unit is an unencoded
-	 letter (1 byte), "0" a position-and-length pair (2 bytes).
-	 Thus, eight units require at most 16 bytes of code. */
+	dat->code_buf[0] = 0;
+		/* code_buf[1..16] saves eight units of code, and code_buf[0] works
+			as eight flags, "1" representing that the unit is an unencoded
+			letter (1 byte), "0" a position-and-length pair (2 bytes).
+			Thus, eight units require at most 16 bytes of code. */
 
-   code_buf_ptr = mask = 1;
+	code_buf_ptr = mask = 1;
 
-   s = 0;
-   r = N - F;
-   lzss_inittree(dat);
+	s = 0;
+	r = N - F;
+	lzss_inittree(dat);
 
-   for (len=0; (len < F) && (size > 0); len++) {
-      dat->text_buf[r+len] = *(buf++);
-      if (--size == 0) {
-	 if (!last) {
-	    dat->state = 1;
-	    goto getout;
-	 }
-      }
-      pos1:
-	 ; 
-   }
+	for (len=0; (len < F) && (size > 0); len++) {
+		dat->text_buf[r+len] = *(buf++);
+		if (--size == 0) {
+			if (!last) {
+				dat->state = 1;
+				goto getout;
+			}
+		}
+		pos1:
+			;
+	}
 
-   if (len == 0)
-      goto getout;
+	if (len == 0)
+		goto getout;
 
-   for (i=1; i <= F; i++)
-      lzss_insertnode(r-i,dat);
-	    /* Insert the F strings, each of which begins with one or
-	       more 'space' characters. Note the order in which these
-	       strings are inserted. This way, degenerate trees will be
-	       less likely to occur. */
+	for (i=1; i <= F; i++)
+		lzss_insertnode(r-i,dat);
+				/* Insert the F strings, each of which begins with one or
+					more 'space' characters. Note the order in which these
+					strings are inserted. This way, degenerate trees will be
+					less likely to occur. */
 
-   lzss_insertnode(r,dat);
-	    /* Finally, insert the whole string just read. match_length
-	       and match_position are set. */
+	lzss_insertnode(r,dat);
+				/* Finally, insert the whole string just read. match_length
+					and match_position are set. */
 
-   do {
-      if (dat->match_length > len)
-	 dat->match_length = len;  /* match_length may be long near the end */
+	do {
+		if (dat->match_length > len)
+			dat->match_length = len;  /* match_length may be long near the end */
 
-      if (dat->match_length <= THRESHOLD) {
-	 dat->match_length = 1;  /* not long enough match: send one byte */
-	 dat->code_buf[0] |= mask;    /* 'send one byte' flag */
-	 dat->code_buf[code_buf_ptr++] = dat->text_buf[r]; /* send uncoded */
-      }
-      else {
-	 /* send position and length pair. Note match_length > THRESHOLD */
-	 dat->code_buf[code_buf_ptr++] = (unsigned char) dat->match_position;
-	 dat->code_buf[code_buf_ptr++] = (unsigned char)
-				     (((dat->match_position >> 4) & 0xF0) |
-				      (dat->match_length - (THRESHOLD + 1)));
-      }
+		if (dat->match_length <= THRESHOLD) {
+			dat->match_length = 1;	/* not long enough match: send one byte */
+			dat->code_buf[0] |= mask;	  /* 'send one byte' flag */
+			dat->code_buf[code_buf_ptr++] = dat->text_buf[r]; /* send uncoded */
+		}
+		else {
+			/* send position and length pair. Note match_length > THRESHOLD */
+			dat->code_buf[code_buf_ptr++] = (unsigned char) dat->match_position;
+			dat->code_buf[code_buf_ptr++] = (unsigned char)
+									 (((dat->match_position >> 4) & 0xF0) |
+									  (dat->match_length - (THRESHOLD + 1)));
+		}
 
-      if ((mask <<= 1) == 0) {                  /* shift mask left one bit */
+		if ((mask <<= 1) == 0) {			/* shift mask left one bit */
 
-	 if ((file->is_normal_packfile) && (file->normal.passpos) &&
-	     (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
-	 {
-	    dat->code_buf[0] ^= *file->normal.passpos;
-	    file->normal.passpos++;
-	    if (!*file->normal.passpos)
-	       file->normal.passpos = file->normal.passdata;
-	 }
+			if ((file->is_normal_packfile) && (file->normal.passpos) &&
+				 (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
+			{
+				dat->code_buf[0] ^= *file->normal.passpos;
+				file->normal.passpos++;
+				if (!*file->normal.passpos)
+					file->normal.passpos = file->normal.passdata;
+			}
 
-	 for (i=0; i<code_buf_ptr; i++)         /* send at most 8 units of */
-	    pack_putc(dat->code_buf[i], file);  /* code together */
+			for (i=0; i<code_buf_ptr; i++)		/* send at most 8 units of */
+				pack_putc(dat->code_buf[i], file);	/* code together */
 
-	 if (pack_ferror(file)) {
-	    ret = EOF;
-	    goto getout;
-	 }
-	 dat->code_buf[0] = 0;
-	 code_buf_ptr = mask = 1;
-      }
+			if (pack_ferror(file)) {
+				ret = EOF;
+				goto getout;
+			}
+			dat->code_buf[0] = 0;
+			code_buf_ptr = mask = 1;
+		}
 
-      last_match_length = dat->match_length;
+		last_match_length = dat->match_length;
 
-      for (i=0; (i < last_match_length) && (size > 0); i++) {
-	 c = *(buf++);
-	 if (--size == 0) {
-	    if (!last) {
-	       dat->state = 2;
-	       goto getout;
-	    }
-	 }
-	 pos2:
-	 lzss_deletenode(s,dat);    /* delete old strings and */
-	 dat->text_buf[s] = c;      /* read new bytes */
-	 if (s < F-1)
-	    dat->text_buf[s+N] = c; /* if the position is near the end of
-				       buffer, extend the buffer to make
-				       string comparison easier */
-	 s = (s+1) & (N-1);
-	 r = (r+1) & (N-1);         /* since this is a ring buffer,
-				       increment the position modulo N */
+		for (i=0; (i < last_match_length) && (size > 0); i++) {
+			c = *(buf++);
+			if (--size == 0) {
+				if (!last) {
+					dat->state = 2;
+					goto getout;
+				}
+			}
+			pos2:
+			lzss_deletenode(s,dat);		/* delete old strings and */
+			dat->text_buf[s] = c;		/* read new bytes */
+			if (s < F-1)
+				dat->text_buf[s+N] = c; /* if the position is near the end of
+											buffer, extend the buffer to make
+											string comparison easier */
+			s = (s+1) & (N-1);
+			r = (r+1) & (N-1);			/* since this is a ring buffer,
+											increment the position modulo N */
 
-	 lzss_insertnode(r,dat);    /* register the string in
-				       text_buf[r..r+F-1] */
-      }
+			lzss_insertnode(r,dat);		/* register the string in
+											text_buf[r..r+F-1] */
+		}
 
-      while (i++ < last_match_length) {   /* after the end of text, */
-	 lzss_deletenode(s,dat);          /* no need to read, but */
-	 s = (s+1) & (N-1);               /* buffer may not be empty */
-	 r = (r+1) & (N-1);
-	 if (--len)
-	    lzss_insertnode(r,dat); 
-      }
+		while (i++ < last_match_length) {	/* after the end of text, */
+			lzss_deletenode(s,dat);				/* no need to read, but */
+			s = (s+1) & (N-1);					/* buffer may not be empty */
+			r = (r+1) & (N-1);
+			if (--len)
+				lzss_insertnode(r,dat);
+		}
 
-   } while (len > 0);   /* until length of string to be processed is zero */
+	} while (len > 0);	/* until length of string to be processed is zero */
 
-   if (code_buf_ptr > 1) {         /* send remaining code */
+	if (code_buf_ptr > 1) {			  /* send remaining code */
 
-      if ((file->is_normal_packfile) && (file->normal.passpos) &&
-	  (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
-      {
-	 dat->code_buf[0] ^= *file->normal.passpos;
-	 file->normal.passpos++;
-	 if (!*file->normal.passpos)
-	    file->normal.passpos = file->normal.passdata;
-      }
+		if ((file->is_normal_packfile) && (file->normal.passpos) &&
+			 (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
+		{
+			dat->code_buf[0] ^= *file->normal.passpos;
+			file->normal.passpos++;
+			if (!*file->normal.passpos)
+				file->normal.passpos = file->normal.passdata;
+		}
 
-      for (i=0; i<code_buf_ptr; i++) {
-	 pack_putc(dat->code_buf[i], file);
-	 if (pack_ferror(file)) {
-	    ret = EOF;
-	    goto getout;
-	 }
-      }
-   }
+		for (i=0; i<code_buf_ptr; i++) {
+			pack_putc(dat->code_buf[i], file);
+			if (pack_ferror(file)) {
+				ret = EOF;
+				goto getout;
+			}
+		}
+	}
 
-   dat->state = 0;
+	dat->state = 0;
 
-   getout:
+	getout:
 
-   dat->i = i;
-   dat->c = c;
-   dat->len = len;
-   dat->r = r;
-   dat->s = s;
-   dat->last_match_length = last_match_length;
-   dat->code_buf_ptr = code_buf_ptr;
-   dat->mask = mask;
+	dat->i = i;
+	dat->c = c;
+	dat->len = len;
+	dat->r = r;
+	dat->s = s;
+	dat->last_match_length = last_match_length;
+	dat->code_buf_ptr = code_buf_ptr;
+	dat->mask = mask;
 
-   return ret;
+	return ret;
 }
 
 
@@ -429,20 +433,20 @@ int lzss_write(PACKFILE *file, LZSS_PACK_DATA *dat, int size, unsigned char *buf
  */
 LZSS_UNPACK_DATA *create_lzss_unpack_data(void)
 {
-   LZSS_UNPACK_DATA *dat;
-   int c;
+	LZSS_UNPACK_DATA *dat;
+	int c;
 
-   if ((dat = _AL_MALLOC_ATOMIC(sizeof(LZSS_UNPACK_DATA))) == NULL) {
-      *allegro_errno = ENOMEM;
-      return NULL;
-   }
+	if ((dat = _AL_MALLOC_ATOMIC(sizeof(LZSS_UNPACK_DATA))) == NULL) {
+		*allegro_errno = ENOMEM;
+		return NULL;
+	}
 
-   for (c=0; c < N - F; c++)
-      dat->text_buf[c] = 0;
+	for (c=0; c < N - F; c++)
+		dat->text_buf[c] = 0;
 
-   dat->state = 0;
+	dat->state = 0;
 
-   return dat;
+	return dat;
 }
 
 
@@ -452,9 +456,9 @@ LZSS_UNPACK_DATA *create_lzss_unpack_data(void)
  */
 void free_lzss_unpack_data(LZSS_UNPACK_DATA *dat)
 {
-   ASSERT(dat);
+	ASSERT(dat);
 
-   _AL_FREE(dat);
+	_AL_FREE(dat);
 }
 
 
@@ -465,87 +469,87 @@ void free_lzss_unpack_data(LZSS_UNPACK_DATA *dat)
  */
 int lzss_read(PACKFILE *file, LZSS_UNPACK_DATA *dat, int s, unsigned char *buf)
 {
-   int i = dat->i;
-   int j = dat->j;
-   int k = dat->k;
-   int r = dat->r;
-   int c = dat->c;
-   unsigned int flags = dat->flags;
-   int size = 0;
+	int i = dat->i;
+	int j = dat->j;
+	int k = dat->k;
+	int r = dat->r;
+	int c = dat->c;
+	unsigned int flags = dat->flags;
+	int size = 0;
 
-   if (dat->state==2)
-      goto pos2;
-   else
-      if (dat->state==1)
-	 goto pos1;
+	if (dat->state==2)
+		goto pos2;
+	else
+		if (dat->state==1)
+			goto pos1;
 
-   r = N-F;
-   flags = 0;
+	r = N-F;
+	flags = 0;
 
-   for (;;) {
-      if (((flags >>= 1) & 256) == 0) {
-	 if ((c = pack_getc(file)) == EOF)
-	    break;
-  
-	 if ((file->is_normal_packfile) && (file->normal.passpos) &&
-	     (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
-	 {
-	    c ^= *file->normal.passpos;
-	    file->normal.passpos++;
-	    if (!*file->normal.passpos)
-	       file->normal.passpos = file->normal.passdata;
-	 }
+	for (;;) {
+		if (((flags >>= 1) & 256) == 0) {
+			if ((c = pack_getc(file)) == EOF)
+				break;
 
-	 flags = c | 0xFF00;        /* uses higher byte to count eight */
-      }
+			if ((file->is_normal_packfile) && (file->normal.passpos) &&
+				 (file->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
+			{
+				c ^= *file->normal.passpos;
+				file->normal.passpos++;
+				if (!*file->normal.passpos)
+					file->normal.passpos = file->normal.passdata;
+			}
 
-      if (flags & 1) {
-	 if ((c = pack_getc(file)) == EOF)
-	    break;
-	 dat->text_buf[r++] = c;
-	 r &= (N - 1);
-	 *(buf++) = c;
-	 if (++size >= s) {
-	    dat->state = 1;
-	    goto getout;
-	 }
-	 pos1:
-	    ; 
-      }
-      else {
-	 if ((i = pack_getc(file)) == EOF)
-	    break;
-	 if ((j = pack_getc(file)) == EOF)
-	    break;
-	 i |= ((j & 0xF0) << 4);
-	 j = (j & 0x0F) + THRESHOLD;
-	 for (k=0; k <= j; k++) {
-	    c = dat->text_buf[(i + k) & (N - 1)];
-	    dat->text_buf[r++] = c;
-	    r &= (N - 1);
-	    *(buf++) = c;
-	    if (++size >= s) {
-	       dat->state = 2;
-	       goto getout;
-	    }
-	    pos2:
-	       ; 
-	 }
-      }
-   }
+			flags = c | 0xFF00;			/* uses higher byte to count eight */
+		}
 
-   dat->state = 0;
+		if (flags & 1) {
+			if ((c = pack_getc(file)) == EOF)
+				break;
+			dat->text_buf[r++] = c;
+			r &= (N - 1);
+			*(buf++) = c;
+			if (++size >= s) {
+				dat->state = 1;
+				goto getout;
+			}
+			pos1:
+				;
+		}
+		else {
+			if ((i = pack_getc(file)) == EOF)
+				break;
+			if ((j = pack_getc(file)) == EOF)
+				break;
+			i |= ((j & 0xF0) << 4);
+			j = (j & 0x0F) + THRESHOLD;
+			for (k=0; k <= j; k++) {
+				c = dat->text_buf[(i + k) & (N - 1)];
+				dat->text_buf[r++] = c;
+				r &= (N - 1);
+				*(buf++) = c;
+				if (++size >= s) {
+					dat->state = 2;
+					goto getout;
+				}
+				pos2:
+					;
+			}
+		}
+	}
 
-   getout:
+	dat->state = 0;
 
-   dat->i = i;
-   dat->j = j;
-   dat->k = k;
-   dat->r = r;
-   dat->c = c;
-   dat->flags = flags;
+	getout:
 
-   return size;
+	dat->i = i;
+	dat->j = j;
+	dat->k = k;
+	dat->r = r;
+	dat->c = c;
+	dat->flags = flags;
+
+	return size;
 }
 
 
@@ -557,5 +561,5 @@ int lzss_read(PACKFILE *file, LZSS_UNPACK_DATA *dat, int s, unsigned char *buf)
  */
 int _al_lzss_incomplete_state(AL_CONST LZSS_UNPACK_DATA *dat)
 {
-   return dat->state == 2;
+	return dat->state == 2;
 }

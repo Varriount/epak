@@ -25,12 +25,28 @@
 #define AL_FUNCPTR(type, name, args)			extern type (*name) args
 
 #define _AL_MALLOC_ATOMIC		malloc
+#define _AL_MALLOC				malloc
 #define _AL_FREE				free
 #define AL_ASSERT				assert
 
 #ifndef EOF
 	#define EOF    (-1)
 #endif
+
+#ifndef TRUE 
+	#define TRUE         -1
+	#define FALSE        0
+#endif
+
+#ifndef AL_MIN
+	#define	AL_MIN(a,b) (((a)<(b))?(a):(b))
+#endif
+
+#ifndef O_BINARY
+	#define O_BINARY	0
+#endif
+
+#define _al_open(filename, mode, perm)   open(filename, mode, perm)
 
 #define PACKFILE_FLAG_WRITE      1     /* the file is being written */
 #define PACKFILE_FLAG_PACK       2     /* data is compressed */

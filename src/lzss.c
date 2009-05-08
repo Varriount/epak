@@ -19,12 +19,12 @@
  */
 
 
-#include "epak/lzss.h"
-#include "epak/file.h"
-
 #include <assert.h>
 #include <stdlib.h>
 #include <sys/errno.h>
+
+#include "epak/lzss.h"
+#include "epak/file.h"
 
 
 /*

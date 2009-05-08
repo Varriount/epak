@@ -13,6 +13,7 @@
 		D518546E0FB43E2C00CB0B25 /* base.h in Headers */ = {isa = PBXBuildFile; fileRef = D518546C0FB43E2C00CB0B25 /* base.h */; };
 		D518546F0FB43E2C00CB0B25 /* lzss.h in Headers */ = {isa = PBXBuildFile; fileRef = D518546D0FB43E2C00CB0B25 /* lzss.h */; };
 		D518547C0FB4437A00CB0B25 /* file.h in Headers */ = {isa = PBXBuildFile; fileRef = D518547B0FB4437A00CB0B25 /* file.h */; };
+		D51854810FB4448A00CB0B25 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = D51854800FB4448A00CB0B25 /* file.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		D518546C0FB43E2C00CB0B25 /* base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base.h; path = include/epak/base.h; sourceTree = "<group>"; };
 		D518546D0FB43E2C00CB0B25 /* lzss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lzss.h; path = include/epak/lzss.h; sourceTree = "<group>"; };
 		D518547B0FB4437A00CB0B25 /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file.h; path = include/epak/file.h; sourceTree = "<group>"; };
+		D51854800FB4448A00CB0B25 /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file.c; path = src/file.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +78,7 @@
 		D51854670FB43BEA00CB0B25 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				D51854800FB4448A00CB0B25 /* file.c */,
 				D51854680FB43BF900CB0B25 /* lzss.c */,
 			);
 			name = src;
@@ -149,6 +152,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D51854690FB43BF900CB0B25 /* lzss.c in Sources */,
+				D51854810FB4448A00CB0B25 /* file.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

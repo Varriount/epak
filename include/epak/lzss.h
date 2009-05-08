@@ -33,6 +33,7 @@ AL_FUNC(int, lzss_write, (PACKFILE *file, LZSS_PACK_DATA *dat, int size, unsigne
 AL_FUNC(LZSS_UNPACK_DATA *, create_lzss_unpack_data, (void));
 AL_FUNC(void, free_lzss_unpack_data, (LZSS_UNPACK_DATA *dat));
 AL_FUNC(int, lzss_read, (PACKFILE *file, LZSS_UNPACK_DATA *dat, int s, unsigned char *buf));
+AL_FUNC(int, _al_lzss_incomplete_state, (AL_CONST LZSS_UNPACK_DATA *dat));
 
 
 #ifdef __cplusplus

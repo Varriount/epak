@@ -27,14 +27,18 @@
  *      Electric Hands Software.
  */
 
-#include <stdio.h>
-#include <string.h>
+#include <assert.h>
 #include <limits.h>
-
-//#include "allegro.h"
-//#include "allegro/internal/aintern.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/errno.h>
+#include <sys/fcntl.h>
 #include <sys/stat.h>
+#include <unistd.h>
+
+#include "epak/file.h"
+#include "epak/lzss.h"
 
 /* some OSes have no concept of "group" and "other" */
 #ifndef S_IRGRP
@@ -49,7 +53,7 @@
 #define OPEN_PERMS	(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)
 
 
-static char the_password[256] = EMPTY_STRING;
+static char the_password[256] = "";
 
 int _packfile_filesize = 0;
 int _packfile_datasize = 0;
@@ -59,6 +63,31 @@ int _packfile_type = 0;
 static PACKFILE_VTABLE normal_vtable;
 
 
+
+
+/* _al_sane_strncpy:
+ *  strncpy() substitution which properly null terminates a string.
+ *  By Henrik Stokseth.
+ */
+char *_al_sane_strncpy(char *dest, const char *src, size_t n)
+{
+	if (n <= 0)
+		return dest;
+	dest[0] = '\0';
+	strncat(dest, src, n - 1);
+
+	return dest;
+}
+
+// Checks a path, if it is a directory returns non zero.
+int exists_dir(const char *path)
+{
+	struct stat buf;
+	if (!stat(path, &buf))
+		return (buf.st_mode & S_IFDIR);
+	else
+		return 0;
+}
 
 
 /***************************************************
@@ -77,7 +106,7 @@ void packfile_password(AL_CONST char *password)
 	int c;
 
 	if (password) {
-		while ((c = ugetxc(&password)) != 0) {
+		while ((c = (*password++)) != 0) {
 			the_password[i++] = c;
 			if (i >= (int)sizeof(the_password)-1)
 				break;
@@ -121,12 +150,12 @@ static int32_t encrypt_id(long x, int new_format)
  */
 static int clone_password(PACKFILE *f)
 {
-	ASSERT(f);
-	ASSERT(f->is_normal_packfile);
+	AL_ASSERT(f);
+	AL_ASSERT(f->is_normal_packfile);
 
 	if (the_password[0]) {
 		if ((f->normal.passdata = _AL_MALLOC_ATOMIC(strlen(the_password)+1)) == NULL) {
-			*allegro_errno = ENOMEM;
+			errno = ENOMEM;
 			return FALSE;
 		}
 		_al_sane_strncpy(f->normal.passdata, the_password, strlen(the_password)+1);
@@ -155,7 +184,7 @@ static PACKFILE *create_packfile(int is_normal_packfile)
 		f = _AL_MALLOC(sizeof(PACKFILE) - sizeof(struct _al_normal_packfile_details));
 
 	if (f == NULL) {
-		*allegro_errno = ENOMEM;
+		errno = ENOMEM;
 		return NULL;
 	}
 
@@ -197,10 +226,10 @@ static void free_packfile(PACKFILE *f)
 		 * rely on the old behaviour.
 		 */
 		if (f->is_normal_packfile) {
-			ASSERT(!f->normal.pack_data);
-			ASSERT(!f->normal.unpack_data);
-			ASSERT(!f->normal.passdata);
-			ASSERT(!f->normal.passpos);
+			AL_ASSERT(!f->normal.pack_data);
+			AL_ASSERT(!f->normal.unpack_data);
+			AL_ASSERT(!f->normal.passdata);
+			AL_ASSERT(!f->normal.passpos);
 		}
 
 		_AL_FREE(f);
@@ -228,7 +257,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	if ((f = create_packfile(TRUE)) == NULL)
 		return NULL;
 
-	ASSERT(f->is_normal_packfile);
+	AL_ASSERT(f->is_normal_packfile);
 
 	while ((c = *(mode++)) != 0) {
 		switch (c) {
@@ -243,7 +272,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 		if (f->normal.flags & PACKFILE_FLAG_PACK) {
 			/* write a packed file */
 			f->normal.pack_data = create_lzss_pack_data();
-			ASSERT(!f->normal.unpack_data);
+			AL_ASSERT(!f->normal.unpack_data);
 
 			if (!f->normal.pack_data) {
 				free_packfile(f);
@@ -281,7 +310,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 		if (f->normal.flags & PACKFILE_FLAG_PACK) {
 			/* read a packed file */
 			f->normal.unpack_data = create_lzss_unpack_data();
-			ASSERT(!f->normal.pack_data);
+			AL_ASSERT(!f->normal.pack_data);
 
 			if (!f->normal.unpack_data) {
 				free_packfile(f);
@@ -307,7 +336,6 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 				if (fd2<0) {
 					pack_fclose(f->normal.parent);
 					free_packfile(f);
-					*allegro_errno = errno;
 					return NULL;
 				}
 
@@ -355,7 +383,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 				free_lzss_unpack_data(f->normal.unpack_data);
 				f->normal.unpack_data = NULL;
 				free_packfile(f);
-				*allegro_errno = EDOM;
+				errno = EDOM;
 				return NULL;
 			}
 		}
@@ -363,7 +391,6 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 			/* read a 'real' file */
 			f->normal.todo = lseek(fd, 0, SEEK_END);	/* size of the file */
 			if (f->normal.todo < 0) {
-				*allegro_errno = errno;
 				free_packfile(f);
 				return NULL;
 			}
@@ -407,14 +434,10 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
  */
 PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 {
-	char tmp[1024];
 	int fd;
-	ASSERT(filename);
+	AL_ASSERT(filename);
 
 	_packfile_type = 0;
-
-	if (!_al_file_isok(filename))
-		return NULL;
 
 #ifndef ALLEGRO_MPW
 	if (strpbrk(mode, "wW"))  /* write mode? */
@@ -429,7 +452,6 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 #endif
 
 	if (fd < 0) {
-		*allegro_errno = errno;
 		return NULL;
 	}
 
@@ -456,23 +478,23 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 PACKFILE *pack_fopen_vtable(AL_CONST PACKFILE_VTABLE *vtable, void *userdata)
 {
 	PACKFILE *f;
-	ASSERT(vtable);
-	ASSERT(vtable->pf_fclose);
-	ASSERT(vtable->pf_getc);
-	ASSERT(vtable->pf_ungetc);
-	ASSERT(vtable->pf_fread);
-	ASSERT(vtable->pf_putc);
-	ASSERT(vtable->pf_fwrite);
-	ASSERT(vtable->pf_fseek);
-	ASSERT(vtable->pf_feof);
-	ASSERT(vtable->pf_ferror);
+	AL_ASSERT(vtable);
+	AL_ASSERT(vtable->pf_fclose);
+	AL_ASSERT(vtable->pf_getc);
+	AL_ASSERT(vtable->pf_ungetc);
+	AL_ASSERT(vtable->pf_fread);
+	AL_ASSERT(vtable->pf_putc);
+	AL_ASSERT(vtable->pf_fwrite);
+	AL_ASSERT(vtable->pf_fseek);
+	AL_ASSERT(vtable->pf_feof);
+	AL_ASSERT(vtable->pf_ferror);
 
 	if ((f = create_packfile(FALSE)) == NULL)
 		return NULL;
 
 	f->vtable = vtable;
 	f->userdata = userdata;
-	ASSERT(!f->is_normal_packfile);
+	AL_ASSERT(!f->is_normal_packfile);
 
 	return f;
 }
@@ -492,13 +514,10 @@ int pack_fclose(PACKFILE *f)
 	if (!f)
 		return 0;
 
-	ASSERT(f->vtable);
-	ASSERT(f->vtable->pf_fclose);
+	AL_ASSERT(f->vtable);
+	AL_ASSERT(f->vtable->pf_fclose);
 
 	ret = f->vtable->pf_fclose(f->userdata);
-	if (ret != 0)
-		*allegro_errno = errno;
-
 	free_packfile(f);
 
 	return ret;
@@ -527,13 +546,12 @@ int pack_fclose(PACKFILE *f)
 PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 {
 	PACKFILE *chunk;
-	char tmp[1024];
 	char *name;
-	ASSERT(f);
+	AL_ASSERT(f);
 
 	/* unsupported */
 	if (!f->is_normal_packfile) {
-		*allegro_errno = EINVAL;
+		errno = EINVAL;
 		return NULL;
 	}
 
@@ -543,74 +561,33 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 		int tmp_fd = -1;
 		char *tmp_dir = NULL;
 		char *tmp_name = NULL;
-		#ifndef ALLEGRO_HAVE_MKSTEMP
-		char* tmpnam_string;
-		#endif
 
-		#ifdef ALLEGRO_WINDOWS
-			int size;
-			int new_size = 64;
+		/* Get the path of the temporary directory */
 
-			/* Get the path of the temporary directory */
-			do {
-				size = new_size;
-				tmp_dir = _AL_REALLOC(tmp_dir, size);
-				new_size = GetTempPath(size, tmp_dir);
-			} while ( (size < new_size) && (new_size > 0) );
-
-			/* Check if we retrieved the path OK */
-			if (new_size == 0)
-				sprintf(tmp_dir, "%s", "");
-		#else
-			/* Get the path of the temporary directory */
-
-			/* Try various possible locations to store the temporary file */
-			if (getenv("TEMP")) {
-				tmp_dir = strdup(getenv("TEMP"));
-			}
-			else if (getenv("TMP")) {
-				tmp_dir = strdup(getenv("TMP"));
-			}
-			else if (file_exists("/tmp", FA_DIREC, NULL)) {
-				tmp_dir = strdup("/tmp");
-			}
-			else if (getenv("HOME")) {
-				tmp_dir = strdup(getenv("HOME"));
-			}
-			else {
-				/* Give up - try current directory */
-				tmp_dir = strdup(".");
-			}
-
-		#endif
+		/* Try various possible locations to store the temporary file */
+		if (getenv("TEMP")) {
+			tmp_dir = strdup(getenv("TEMP"));
+		}
+		else if (getenv("TMP")) {
+			tmp_dir = strdup(getenv("TMP"));
+		}
+		else if (exists_dir("/tmp")) {
+			tmp_dir = strdup("/tmp");
+		}
+		else if (getenv("HOME")) {
+			tmp_dir = strdup(getenv("HOME"));
+		}
+		else {
+			/* Give up - try current directory */
+			tmp_dir = strdup(".");
+		}
 
 		/* the file is open in read/write mode, even if the pack file
 		 * seems to be in write only mode
 		 */
-		#ifdef ALLEGRO_HAVE_MKSTEMP
-
-			tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + 16);
-			sprintf(tmp_name, "%s/XXXXXX", tmp_dir);
-			tmp_fd = mkstemp(tmp_name);
-
-		#else
-
-			/* note: since the filename creation and the opening are not
-			 * an atomic operation, this is not secure
-			 */
-			tmpnam_string = tmpnam(NULL);
-			tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + strlen(tmpnam_string) + 2);
-			sprintf(tmp_name, "%s/%s", tmp_dir, tmpnam_string);
-
-			if (tmp_name) {
-#ifndef ALLEGRO_MPW
-				tmp_fd = open(tmp_name, O_RDWR | O_BINARY | O_CREAT | O_EXCL, OPEN_PERMS);
-#else
-				tmp_fd = _al_open(tmp_name, O_RDWR | O_BINARY | O_CREAT | O_EXCL);
-#endif
-			}
-
-		#endif
+		tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + 16);
+		sprintf(tmp_name, "%s/XXXXXX", tmp_dir);
+		tmp_fd = mkstemp(tmp_name);
 
 		if (tmp_fd < 0) {
 			_AL_FREE(tmp_dir);
@@ -619,11 +596,11 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 			return NULL;
 		}
 
-		name = uconvert_ascii(tmp_name, tmp);
+		name = tmp_name;
 		chunk = _pack_fdopen(tmp_fd, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
 
 		if (chunk) {
-			chunk->normal.filename = ustrdup(name);
+			chunk->normal.filename = strdup(name);
 
 			if (pack)
 				chunk->normal.parent->normal.parent = f;
@@ -651,7 +628,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 			/* backward compatibility mode */
 			if (f->normal.passdata) {
 				if ((chunk->normal.passdata = _AL_MALLOC_ATOMIC(strlen(f->normal.passdata)+1)) == NULL) {
-					*allegro_errno = ENOMEM;
+					errno = ENOMEM;
 					_AL_FREE(chunk);
 					return NULL;
 				}
@@ -665,7 +642,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 		if (_packfile_datasize < 0) {
 			/* read a packed chunk */
 			chunk->normal.unpack_data = create_lzss_unpack_data();
-			ASSERT(!chunk->normal.pack_data);
+			AL_ASSERT(!chunk->normal.pack_data);
 
 			if (!chunk->normal.unpack_data) {
 				free_packfile(chunk);
@@ -699,11 +676,11 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 	PACKFILE *tmp;
 	char *name;
 	int header, c;
-	ASSERT(f);
+	AL_ASSERT(f);
 
 	/* unsupported */
 	if (!f->is_normal_packfile) {
-		*allegro_errno = EINVAL;
+		errno = EINVAL;
 		return NULL;
 	}
 
@@ -723,7 +700,6 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 			hndl = dup(f->normal.hndl);
 
 		if (hndl<0) {
-			*allegro_errno = errno;
 			return NULL;
 		}
 
@@ -765,7 +741,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 
 		pack_fclose(tmp);
 
-		delete_file(name);
+		unlink(name);
 		_AL_FREE(name);
 	}
 	else {
@@ -795,8 +771,8 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
  */
 int pack_fseek(PACKFILE *f, int offset)
 {
-	ASSERT(f);
-	ASSERT(offset >= 0);
+	AL_ASSERT(f);
+	AL_ASSERT(offset >= 0);
 
 	return f->vtable->pf_fseek(f->userdata, offset);
 }
@@ -809,9 +785,9 @@ int pack_fseek(PACKFILE *f, int offset)
  */
 int pack_getc(PACKFILE *f)
 {
-	ASSERT(f);
-	ASSERT(f->vtable);
-	ASSERT(f->vtable->pf_getc);
+	AL_ASSERT(f);
+	AL_ASSERT(f->vtable);
+	AL_ASSERT(f->vtable->pf_getc);
 
 	return f->vtable->pf_getc(f->userdata);
 }
@@ -823,9 +799,9 @@ int pack_getc(PACKFILE *f)
  */
 int pack_putc(int c, PACKFILE *f)
 {
-	ASSERT(f);
-	ASSERT(f->vtable);
-	ASSERT(f->vtable->pf_putc);
+	AL_ASSERT(f);
+	AL_ASSERT(f->vtable);
+	AL_ASSERT(f->vtable->pf_putc);
 
 	return f->vtable->pf_putc(c, f->userdata);
 }
@@ -839,9 +815,9 @@ int pack_putc(int c, PACKFILE *f)
  */
 int pack_feof(PACKFILE *f)
 {
-	ASSERT(f);
-	ASSERT(f->vtable);
-	ASSERT(f->vtable->pf_feof);
+	AL_ASSERT(f);
+	AL_ASSERT(f->vtable);
+	AL_ASSERT(f->vtable->pf_feof);
 
 	return f->vtable->pf_feof(f->userdata);
 }
@@ -854,9 +830,9 @@ int pack_feof(PACKFILE *f)
  */
 int pack_ferror(PACKFILE *f)
 {
-	ASSERT(f);
-	ASSERT(f->vtable);
-	ASSERT(f->vtable->pf_ferror);
+	AL_ASSERT(f);
+	AL_ASSERT(f->vtable);
+	AL_ASSERT(f->vtable->pf_ferror);
 
 	return f->vtable->pf_ferror(f->userdata);
 }
@@ -869,7 +845,7 @@ int pack_ferror(PACKFILE *f)
 int pack_igetw(PACKFILE *f)
 {
 	int b1, b2;
-	ASSERT(f);
+	AL_ASSERT(f);
 
 	if ((b1 = pack_getc(f)) != EOF)
 		if ((b2 = pack_getc(f)) != EOF)
@@ -886,7 +862,7 @@ int pack_igetw(PACKFILE *f)
 long pack_igetl(PACKFILE *f)
 {
 	int b1, b2, b3, b4;
-	ASSERT(f);
+	AL_ASSERT(f);
 
 	if ((b1 = pack_getc(f)) != EOF)
 		if ((b2 = pack_getc(f)) != EOF)
@@ -906,7 +882,7 @@ long pack_igetl(PACKFILE *f)
 int pack_iputw(int w, PACKFILE *f)
 {
 	int b1, b2;
-	ASSERT(f);
+	AL_ASSERT(f);
 
 	b1 = (w & 0xFF00) >> 8;
 	b2 = w & 0x00FF;
@@ -926,7 +902,7 @@ int pack_iputw(int w, PACKFILE *f)
 long pack_iputl(long l, PACKFILE *f)
 {
 	int b1, b2, b3, b4;
-	ASSERT(f);
+	AL_ASSERT(f);
 
 	b1 = (int)((l & 0xFF000000L) >> 24);
 	b2 = (int)((l & 0x00FF0000L) >> 16);
@@ -950,7 +926,7 @@ long pack_iputl(long l, PACKFILE *f)
 int pack_mgetw(PACKFILE *f)
 {
 	int b1, b2;
-	ASSERT(f);
+	AL_ASSERT(f);
 
 	if ((b1 = pack_getc(f)) != EOF)
 		if ((b2 = pack_getc(f)) != EOF)
@@ -967,7 +943,7 @@ int pack_mgetw(PACKFILE *f)
 long pack_mgetl(PACKFILE *f)
 {
 	int b1, b2, b3, b4;
-	ASSERT(f);
+	AL_ASSERT(f);
 
 	if ((b1 = pack_getc(f)) != EOF)
 		if ((b2 = pack_getc(f)) != EOF)
@@ -987,7 +963,7 @@ long pack_mgetl(PACKFILE *f)
 int pack_mputw(int w, PACKFILE *f)
 {
 	int b1, b2;
-	ASSERT(f);
+	AL_ASSERT(f);
 
 	b1 = (w & 0xFF00) >> 8;
 	b2 = w & 0x00FF;
@@ -1007,7 +983,7 @@ int pack_mputw(int w, PACKFILE *f)
 long pack_mputl(long l, PACKFILE *f)
 {
 	int b1, b2, b3, b4;
-	ASSERT(f);
+	AL_ASSERT(f);
 
 	b1 = (int)((l & 0xFF000000L) >> 24);
 	b2 = (int)((l & 0x00FF0000L) >> 16);
@@ -1032,11 +1008,11 @@ long pack_mputl(long l, PACKFILE *f)
  */
 long pack_fread(void *p, long n, PACKFILE *f)
 {
-	ASSERT(f);
-	ASSERT(f->vtable);
-	ASSERT(f->vtable->pf_fread);
-	ASSERT(p);
-	ASSERT(n >= 0);
+	AL_ASSERT(f);
+	AL_ASSERT(f->vtable);
+	AL_ASSERT(f->vtable->pf_fread);
+	AL_ASSERT(p);
+	AL_ASSERT(n >= 0);
 
 	return f->vtable->pf_fread(p, n, f->userdata);
 }
@@ -1050,11 +1026,11 @@ long pack_fread(void *p, long n, PACKFILE *f)
  */
 long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
 {
-	ASSERT(f);
-	ASSERT(f->vtable);
-	ASSERT(f->vtable->pf_fwrite);
-	ASSERT(p);
-	ASSERT(n >= 0);
+	AL_ASSERT(f);
+	AL_ASSERT(f->vtable);
+	AL_ASSERT(f->vtable->pf_fwrite);
+	AL_ASSERT(p);
+	AL_ASSERT(n >= 0);
 
 	return f->vtable->pf_fwrite(p, n, f->userdata);
 }
@@ -1068,9 +1044,9 @@ long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
  */
 int pack_ungetc(int c, PACKFILE *f)
 {
-	ASSERT(f);
-	ASSERT(f->vtable);
-	ASSERT(f->vtable->pf_ungetc);
+	AL_ASSERT(f);
+	AL_ASSERT(f->vtable);
+	AL_ASSERT(f->vtable->pf_ungetc);
 
 	return f->vtable->pf_ungetc(c, f->userdata);
 }
@@ -1142,8 +1118,6 @@ static int normal_fclose(void *_f)
 	}
 	else {
 		ret = close(f->normal.hndl);
-		if (ret != 0)
-			*allegro_errno = errno;
 	}
 
 	if (f->normal.pack_data) {
@@ -1283,11 +1257,11 @@ static int normal_fseek(void *_f, int offset)
 	if (f->normal.flags & PACKFILE_FLAG_WRITE)
 		return -1;
 
-	*allegro_errno = 0;
+	errno = 0;
 
 	/* skip forward through the buffer */
 	if (f->normal.buf_size > 0) {
-		i = MIN(offset, f->normal.buf_size);
+		i = AL_MIN(offset, f->normal.buf_size);
 		f->normal.buf_size -= i;
 		f->normal.buf_pos += i;
 		offset -= i;
@@ -1297,7 +1271,7 @@ static int normal_fseek(void *_f, int offset)
 
 	/* need to seek some more? */
 	if (offset > 0) {
-		i = MIN(offset, f->normal.todo);
+		i = AL_MIN(offset, f->normal.todo);
 
 		if ((f->normal.flags & PACKFILE_FLAG_PACK) || (f->normal.passpos)) {
 			/* for compressed or encrypted files, we just have to read through the data */
@@ -1321,7 +1295,7 @@ static int normal_fseek(void *_f, int offset)
 		}
 	}
 
-	if (*allegro_errno)
+	if (errno)
 		return -1;
 	else
 		return 0;
@@ -1365,10 +1339,13 @@ static int normal_refill_buffer(PACKFILE *f)
 
 	if (f->normal.parent) {
 		if (f->normal.flags & PACKFILE_FLAG_PACK) {
-			f->normal.buf_size = lzss_read(f->normal.parent, f->normal.unpack_data, MIN(F_BUF_SIZE, f->normal.todo), f->normal.buf);
+			f->normal.buf_size = lzss_read(f->normal.parent,
+				f->normal.unpack_data, AL_MIN(F_BUF_SIZE, f->normal.todo),
+				f->normal.buf);
 		}
 		else {
-			f->normal.buf_size = pack_fread(f->normal.buf, MIN(F_BUF_SIZE, f->normal.todo), f->normal.parent);
+			f->normal.buf_size = pack_fread(f->normal.buf,
+				AL_MIN(F_BUF_SIZE, f->normal.todo), f->normal.parent);
 		}
 		if (f->normal.parent->normal.flags & PACKFILE_FLAG_EOF)
 			f->normal.todo = 0;
@@ -1376,7 +1353,7 @@ static int normal_refill_buffer(PACKFILE *f)
 			goto Error;
 	}
 	else {
-		f->normal.buf_size = MIN(F_BUF_SIZE, f->normal.todo);
+		f->normal.buf_size = AL_MIN(F_BUF_SIZE, f->normal.todo);
 
 		offset = lseek(f->normal.hndl, 0, SEEK_CUR);
 		done = 0;
@@ -1418,7 +1395,7 @@ static int normal_refill_buffer(PACKFILE *f)
 		return *(f->normal.buf_pos++);
 
 Error:
-	*allegro_errno = EFAULT;
+	errno = EFAULT;
 	f->normal.flags |= PACKFILE_FLAG_ERROR;
 	return EOF;
 }
@@ -1472,7 +1449,7 @@ static int normal_flush_buffer(PACKFILE *f, int last)
 	return 0;
 
 Error:
-	*allegro_errno = EFAULT;
+	errno = EFAULT;
 	f->normal.flags |= PACKFILE_FLAG_ERROR;
 	return EOF;
 }

@@ -95,6 +95,19 @@ def raw_read_skip_test(filename):
 	closing = _epak.close(pak)
 	assert not closing, "Couldn't force close!"
 
+	# Now repeat the second read skipping the first chunk.
+	pak = _epak.open(filename, "rp")
+	_epak.skip_chunks(pak, 1);
+
+	pak = _epak.open_chunk(pak, 1)
+	assert pak, "Couldn't open second subchunk"
+	buf = _epak.read(len(STR2), pak)
+	assert len(buf) == len(STR2)
+	assert buf == STR2
+
+	closing = _epak.close(pak)
+	assert not closing, "Couldn't force close!"
+
 
 def py_read_skip_test(filename):
 	"""f(string) -> None
@@ -104,6 +117,15 @@ def py_read_skip_test(filename):
 	with epak.Epak(filename, "rp") as input:
 		input.open_chunk()
 		input.close_chunk()
+
+		input.open_chunk()
+		buf = input.read(len(STR2))
+		assert len(buf) == len(STR2)
+		assert buf == STR2
+
+	# Now repeat the second read skipping the first chunk.
+	with epak.Epak(filename, "rp") as input:
+		input.skip_chunks(1)
 
 		input.open_chunk()
 		buf = input.read(len(STR2))

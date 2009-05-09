@@ -69,6 +69,20 @@ void read_skip_test(const char *filename)
 	// Force closing all packfiles, even though we aren't finished.
 	const int closing = pack_fclose(pak);
 	assert(!closing && "Couldn't force close!");
+
+	// Now repeat the second read skipping the first chunk.
+	pak = pack_fopen(filename, F_READ_PACKED);
+	if (pack_skip_chunks(pak, 1)) {
+		assert(0 && "Couldn't skip first chunk");
+	}
+
+	pak = pack_fopen_chunk(pak, 1);
+	assert(pak && "Couldn't open second subckunk");
+	const unsigned long ret2 = pack_fread(buf, strlen(s), pak);
+	assert(ret2 == strlen(s));
+
+	assert(!strncmp(buf, s, strlen(s)));
+	pack_fclose(pak);
 }
 
 int main(void)

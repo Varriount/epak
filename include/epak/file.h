@@ -95,6 +95,7 @@ PACKFILE *pack_fopen(const char *filename, const char *mode);
 PACKFILE *pack_fopen_vtable(const PACKFILE_VTABLE *vtable, void *userdata);
 int pack_fclose(PACKFILE *f);
 int pack_fseek(PACKFILE *f, int offset);
+int pack_skip_chunks(PACKFILE *f, unsigned int num_chunks);
 PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack);
 PACKFILE *pack_fclose_chunk(PACKFILE *f);
 int pack_getc(PACKFILE *f);

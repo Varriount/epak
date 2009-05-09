@@ -48,6 +48,11 @@ class Epak:
 		ret = _epak.seek(self.pak, offset)
 		assert 0 == ret
 
+	def skip_chunks(self, to_skip):
+		assert self.pak
+		assert to_skip >= 0
+		_epak.skip_chunks(self.pak, to_skip)
+
 	def open_chunk(self, pack = 1):
 		assert self.pak
 		ret = _epak.open_chunk(self.pak, pack)

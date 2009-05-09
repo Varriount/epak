@@ -609,7 +609,7 @@ int pack_fclose(PACKFILE *f)
  * attempt this), and to automatically skip past any unread chunk
  * data when you call pack_fclose_chunk(). This means that you can skip
  * a whole chunk by calling pack_fopen_chunk() and pack_fclose_chunk() in
- * sucession.
+ * sucession, though it is faster to call pack_skip_chunks().
  *
  * Chunks can be nested inside each other by making repeated calls
  * to pack_fopen_chunk(). When writing a file, the compression status
@@ -874,6 +874,30 @@ int pack_fseek(PACKFILE *f, int offset)
 }
 
 
+/** Skips a number of subchunks inside the file.
+ * This is faster than opening and closing a subchunk as you find it on disk.
+ * The function reads the hidden chunk size data and uses that to call
+ * pack_fseek instead. Pass how many chunks you want to skip, usually one.
+ *
+ * \return Returns non zero on error, storing the code in errno.
+ */
+int pack_skip_chunks(PACKFILE *f, unsigned int num_chunks)
+{
+	if (!num_chunks)
+		return 0;
+
+	const int filesize = pack_mgetl(f);
+	const int datasize = pack_mgetl(f);
+	AL_ASSERT(filesize >= 0);
+
+	if (pack_fseek(f, filesize))
+		return 1;
+
+	if (num_chunks)
+		pack_skip_chunks(f, num_chunks - 1);
+
+	return 0;
+}
 
 /**
  * Returns the next character from the stream f, or EOF if the end of the

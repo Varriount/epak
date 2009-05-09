@@ -104,6 +104,17 @@ static PyObject *epak_write(PyObject *self, PyObject *args)
 	return Py_BuildValue("l", ret);
 }
 
+static PyObject *epak_skip_chunks(PyObject *self, PyObject *args)
+{
+	PACKFILE *p;
+	unsigned int to_skip;
+	if (!PyArg_ParseTuple(args, "iI", &p, &to_skip)) return NULL;
+
+	if (pack_skip_chunks(p, to_skip))
+		RAISE("Errors detected skipping chunks");
+	RETURN_NONE();
+}
+
 static PyObject *epak_read(PyObject *self, PyObject *args)
 {
 	PACKFILE *p;
@@ -192,6 +203,7 @@ static PyMethodDef _epak_methods[] = {
 	{"write",					epak_write, METH_VARARGS, 0},
 	{"read",					epak_read, METH_VARARGS, 0},
 	{"ungetc",					epak_ungetc, METH_VARARGS, 0},
+	{"skip_chunks",				epak_skip_chunks, METH_VARARGS, 0},
 	{ 0, 0, 0, 0}
 };
 

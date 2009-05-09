@@ -195,12 +195,12 @@ static PyMethodDef _epak_methods[] = {
 	{ 0, 0, 0, 0}
 };
 
-PyMODINIT_FUNC initepak(void)
+PyMODINIT_FUNC init_epak(void)
 {
 	PyObject *m, *d;
 
-	m = Py_InitModule("epak", _epak_methods);
+	m = Py_InitModule("_epak", _epak_methods);
 	d = PyModule_GetDict(m);
-	Epak_error = PyErr_NewException("epak.Epak_error", NULL, NULL);
+	Epak_error = PyErr_NewException("_epak.Epak_error", NULL, NULL);
 	PyDict_SetItemString(d, "Epak_error", Epak_error);
 }

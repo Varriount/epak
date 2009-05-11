@@ -63,10 +63,10 @@
 	#define AL_INLINE(type, name, args, code)    static type name args code
 #endif
 
-typedef struct PACKFILE_VTABLE PACKFILE_VTABLE;
-typedef struct PACKFILE PACKFILE;
-typedef struct LZSS_PACK_DATA LZSS_PACK_DATA;
-typedef struct LZSS_UNPACK_DATA LZSS_UNPACK_DATA;
+typedef struct PACKFILE_VTABLE_t PACKFILE_VTABLE;
+typedef struct PACKFILE_t PACKFILE;
+typedef struct LZSS_PACK_DATA_t LZSS_PACK_DATA;
+typedef struct LZSS_UNPACK_DATA_t LZSS_UNPACK_DATA;
 
 
 #endif // ALLEGRO_SIMULATED_BASE_H

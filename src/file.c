@@ -888,7 +888,7 @@ int pack_skip_chunks(PACKFILE *f, unsigned int num_chunks)
 
 	const int filesize = pack_mgetl(f);
 	const int datasize = pack_mgetl(f);
-	AL_ASSERT(filesize >= 0);
+	AL_ASSERT(filesize >= 0 && (datasize || !datasize));
 
 	if (pack_fseek(f, filesize))
 		return 1;

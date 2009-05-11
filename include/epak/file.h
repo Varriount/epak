@@ -39,9 +39,6 @@
 #define F_EXE_MAGIC     0x736C682BL    ///< magic number for appended data
 
 
-struct LZSS_PACK_DATA;
-struct LZSS_UNPACK_DATA;
-
 
 struct _al_normal_packfile_details
 {
@@ -50,9 +47,9 @@ struct _al_normal_packfile_details
 	unsigned char *buf_pos;             ///< position in buffer
 	int buf_size;                       ///< number of bytes in the buffer
 	long todo;                          ///< number of bytes still on the disk
-	struct PACKFILE *parent;            ///< nested, parent file
-	struct LZSS_PACK_DATA *pack_data;   ///< for LZSS compression
-	struct LZSS_UNPACK_DATA *unpack_data; ///< for LZSS decompression
+	PACKFILE *parent;		            ///< nested, parent file
+	LZSS_PACK_DATA *pack_data;			///< for LZSS compression
+	LZSS_UNPACK_DATA *unpack_data; 		///< for LZSS decompression
 	char *filename;                     ///< name of the file
 	char *passdata;                     ///< encryption key data
 	char *passpos;                      ///< current key position
@@ -61,7 +58,7 @@ struct _al_normal_packfile_details
 
 
 /// Our very own FILE structure...
-struct PACKFILE
+struct PACKFILE_t
 {
 	const PACKFILE_VTABLE *vtable;
 	void *userdata;
@@ -76,7 +73,7 @@ struct PACKFILE
 };
 
 
-struct PACKFILE_VTABLE
+struct PACKFILE_VTABLE_t
 {
 	AL_METHOD(int, pf_fclose, (void *userdata));
 	AL_METHOD(int, pf_getc, (void *userdata));

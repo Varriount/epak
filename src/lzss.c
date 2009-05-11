@@ -64,7 +64,7 @@
 #define THRESHOLD		2			/* LZ encode string into pos and length
 									   if match size is greater than this */
 
-struct LZSS_PACK_DATA					/* stuff for doing LZ compression */
+struct LZSS_PACK_DATA_t					/* stuff for doing LZ compression */
 {
 	int state;							/* where have we got to in the pack? */
 	int i, c, len, r, s;
@@ -81,7 +81,7 @@ struct LZSS_PACK_DATA					/* stuff for doing LZ compression */
 };
 
 
-struct LZSS_UNPACK_DATA				/* for reading LZ files */
+struct LZSS_UNPACK_DATA_t			/* for reading LZ files */
 {
 	int state;						/* where have we got to? */
 	int i, j, k, r, c;

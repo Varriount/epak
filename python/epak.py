@@ -15,9 +15,7 @@ class Epak:
 		assert self.pak
 
 	def __del__(self):
-		if self.pak:
-			_epak.close(self.pak)
-		self.pak = 0
+		self.close()
 
 	def __enter__(self):
 		"""Returns itself to comply with the context manager protocol."""
@@ -39,8 +37,8 @@ class Epak:
 
 
 	def close(self):
-		assert self.pak
-		_epak.close(self.pak)
+		if self.pak:
+			_epak.close(self.pak)
 		self.pak = 0
 
 	def seek(self, offset):

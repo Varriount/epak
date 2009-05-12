@@ -9,25 +9,16 @@ static const char *_utf8 = "utf8";
 
 static PyObject *Epak_error = 0;
 
-/* Try to avoid creating real PACKFILEs, just use pointers
-
-// Python PACKFILE.
-typedef struct 
-{
-	PyObject_HEAD
-	PACKFILE *pack;
-} Packfile_object;
-
-staticforward PyTypeObject Packfile_object;
-
-// Macro to check type.
-#define is_Packfile_object(v) (((PyObject*)(v))->ob_type == &Packfile_object_type)
-// Macro to access internal PACKFILE value.
-#define PACK(v) (((Packfile_object*)(v))->pack)
-*/
 
 #define RETURN_NONE() do { Py_INCREF(Py_None); return Py_None;} while(0)
 #define RAISE(X) do { PyErr_SetString(Epak_error, X); return NULL;} while(0)
+
+#if 0
+#define DLOG(X, ...)		printf("epak.C:" X, ##__VA_ARGS__)
+#else
+#define DLOG(X, ...)		;
+#endif
+
 
 
 static PyObject *epak_set_password(PyObject* self, PyObject* args)
@@ -42,6 +33,7 @@ static PyObject *epak_set_password(PyObject* self, PyObject* args)
 
 static PyObject *epak_open(PyObject *self, PyObject *args)
 {
+	DLOG("Opening pack\n");
 	const char *filename, *mode;
 	if (!PyArg_ParseTuple(args, "ss", &filename, &mode)) return NULL;
 
@@ -55,6 +47,7 @@ static PyObject *epak_close(PyObject *self, PyObject *args)
 	PACKFILE *p;
 	if (!PyArg_ParseTuple(args, "i", &p)) return NULL;
 
+	DLOG("Closing packfile %p\n", p);
 	const int ret = pack_fclose(p);
 	if (ret) RAISE("Error closing packfile");
 	RETURN_NONE();
@@ -77,6 +70,7 @@ static PyObject *epak_open_chunk(PyObject *self, PyObject *args)
 	int pack;
 	if (!PyArg_ParseTuple(args, "ii", &p, &pack)) return NULL;
 
+	DLOG("Opening chunk inside %p\n", p);
 	PACKFILE *valid = pack_fopen_chunk(p, pack);
 	if (!valid) RAISE("Error opening chunk");
 	return Py_BuildValue("i", valid);
@@ -89,6 +83,7 @@ static PyObject *epak_close_chunk(PyObject *self, PyObject *args)
 
 	PACKFILE *valid = pack_fclose_chunk(p);
 	if (!valid) RAISE("Error closing chunk");
+	DLOG("Closed chunk, parent %p\n", valid);
 	return Py_BuildValue("i", valid);
 }
 

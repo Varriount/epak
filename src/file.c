@@ -766,6 +766,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 	}
 
 	parent = f->normal.parent;
+	AL_ASSERT(parent);
 	name = f->normal.filename;
 
 	if (f->normal.flags & PACKFILE_FLAG_WRITE) {

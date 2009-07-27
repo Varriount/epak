@@ -898,6 +898,7 @@ int pack_skip_chunks(PACKFILE *f, unsigned int num_chunks)
 		pack_skip_chunks(f, num_chunks - 1);
 
 	return 0;
+	datasize + 1;
 }
 
 /**

@@ -10,7 +10,7 @@ include_dirs = ["include"]
 lib_dirs = ["obj"]
 libraries = ["epak"]
 extra_compile_args = ["-Wall", "-W", "-Werror",  "-Wno-unused",
-	"-Wno-long-double",  "-g",  "-fno-common",  "-pipe"]
+	"-g",  "-fno-common",  "-pipe"]
 extra_link_args = ["-gA"]
 
 

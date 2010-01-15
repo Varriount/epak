@@ -1,10 +1,11 @@
 .PHONY: docs example python
 
-CC = gcc
+PYTHON = python
+CC = gcc-4.0
 OBJ_DIR = obj
 LIB_NAME = obj/libepak.a
-WFLAGS = -Wall -W -Werror -Wno-unused -Wno-long-double
-CFLAGS = -g
+WFLAGS = -Wall -W -Werror -Wno-unused
+CFLAGS = -g -DNDEBUG
 LFLAGS = -gA
 CFLAGS += -fno-common -pipe
 
@@ -37,28 +38,28 @@ lib: $(LIB_NAME)
 	@echo "Built library"
 
 $(LIB_NAME): obj $(wildcard src/*.c)
-	gcc -c $(CFLAGS) $(WFLAGS) -Iinclude -o obj/file.o src/file.c
-	gcc -c $(CFLAGS) $(WFLAGS) -Iinclude -o obj/lzss.o src/lzss.c
+	$(CC) -c $(CFLAGS) $(WFLAGS) -Iinclude -o obj/file.o src/file.c
+	$(CC) -c $(CFLAGS) $(WFLAGS) -Iinclude -o obj/lzss.o src/lzss.c
 	ar -r $(LIB_NAME) obj/file.o obj/lzss.o
 
 obj:
 	mkdir obj
 
 example: $(LIB_NAME)
-	gcc -o example/pretest example/test.c -Iinclude $(CFLAGS) $(WFLAGS) $(LIB_NAME)
+	$(CC) -o example/pretest example/test.c -Iinclude $(CFLAGS) $(WFLAGS) $(LIB_NAME)
 	(cd example && ./pretest && cd ..)
 	mv example/pretest example/test
 
 python_test: example
-	(cd example && ./test.py)
+	(cd example && $(PYTHON) ./test.py)
 	@echo "Python example runs finished"
 
 python:
-	./setup.py build
+	$(PYTHON) ./setup.py build
 	echo "Python module built"
 
 install_python: python
-	./setup.py install
+	$(PYTHON) ./setup.py install
 	@echo "Now that epak module is available, try running make python_test"
 
 docs:

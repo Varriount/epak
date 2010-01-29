@@ -16,6 +16,8 @@ LIBDIR = $(INSTALLDIR)/lib
 INCDIR = $(INSTALLDIR)/include
 INCDIR2 = $(INCDIR)/epak
 TARGET_LIB = $(INSTALLDIR)/lib/libepak.a
+LIB_DEBUG = build/libepak-Debug.a
+LIB_RELEASE = build/libepak-Release.a
 
 
 default: all
@@ -26,10 +28,14 @@ $(TARGET_LIB): $(LIB_NAME)
 	install -c $(wildcard include/epak/*.h) $(INCDIR2)
 	install -c $(LIB_NAME) $(LIBDIR)
 
-all: python example docs
-	xcodebuild -configuration Debug -target "epak"
-	#xcodebuild -configuration Release -target "Build ALL"
+all: $(LIB_DEBUG) $(LIB_RELEASE) python example docs
 	@echo "Now that the code is built, run make install."
+
+$(LIB_DEBUG): $(wildcard src/*.c) $(wildcard include/*.h) $(wildcard include/epak/*h)
+	xcodebuild -configuration Debug -target epak
+
+$(LIB_RELEASE): $(wildcard src/*.c) $(wildcard include/*.h) $(wildcard include/epak/*h)
+	xcodebuild -configuration Release -target epak
 
 install: $(TARGET_LIB) install_python
 	@echo "Installed locally"

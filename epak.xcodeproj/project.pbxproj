@@ -6,6 +6,22 @@
 	objectVersion = 45;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		D52725B3111354E700151BCE /* epak */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = D52725BF111354FF00151BCE /* Build configuration list for PBXAggregateTarget "epak" */;
+			buildPhases = (
+				D52725B2111354E700151BCE /* ShellScript */,
+			);
+			dependencies = (
+				D52725B7111354EF00151BCE /* PBXTargetDependency */,
+				D52725B9111354F100151BCE /* PBXTargetDependency */,
+			);
+			name = epak;
+			productName = epak;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		AA747D9F0F9514B9006C5449 /* epak_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* epak_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
@@ -15,18 +31,46 @@
 		D518547C0FB4437A00CB0B25 /* file.h in Headers */ = {isa = PBXBuildFile; fileRef = D518547B0FB4437A00CB0B25 /* file.h */; };
 		D51854810FB4448A00CB0B25 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = D51854800FB4448A00CB0B25 /* file.c */; };
 		D526B4F90FB465010014DDEB /* epak.h in Headers */ = {isa = PBXBuildFile; fileRef = D526B4F80FB465010014DDEB /* epak.h */; };
+		D52725A0111354A700151BCE /* epak_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* epak_Prefix.pch */; };
+		D52725A1111354A700151BCE /* base.h in Headers */ = {isa = PBXBuildFile; fileRef = D518546C0FB43E2C00CB0B25 /* base.h */; };
+		D52725A2111354A700151BCE /* lzss.h in Headers */ = {isa = PBXBuildFile; fileRef = D518546D0FB43E2C00CB0B25 /* lzss.h */; };
+		D52725A3111354A700151BCE /* file.h in Headers */ = {isa = PBXBuildFile; fileRef = D518547B0FB4437A00CB0B25 /* file.h */; };
+		D52725A4111354A700151BCE /* epak.h in Headers */ = {isa = PBXBuildFile; fileRef = D526B4F80FB465010014DDEB /* epak.h */; };
+		D52725A6111354A700151BCE /* lzss.c in Sources */ = {isa = PBXBuildFile; fileRef = D51854680FB43BF900CB0B25 /* lzss.c */; };
+		D52725A7111354A700151BCE /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = D51854800FB4448A00CB0B25 /* file.c */; };
+		D52725A9111354A700151BCE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D52725B6111354EF00151BCE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = epakdev;
+		};
+		D52725B8111354F100151BCE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D527259E111354A700151BCE;
+			remoteInfo = epaksim;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		AA747D9E0F9514B9006C5449 /* epak_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = epak_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		D2AAC07E0554694100DB518D /* libepak.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libepak.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2AAC07E0554694100DB518D /* libepakdev.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libepakdev.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D51854680FB43BF900CB0B25 /* lzss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lzss.c; path = src/lzss.c; sourceTree = "<group>"; };
 		D518546C0FB43E2C00CB0B25 /* base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base.h; path = include/epak/base.h; sourceTree = "<group>"; };
 		D518546D0FB43E2C00CB0B25 /* lzss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lzss.h; path = include/epak/lzss.h; sourceTree = "<group>"; };
 		D518547B0FB4437A00CB0B25 /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file.h; path = include/epak/file.h; sourceTree = "<group>"; };
 		D51854800FB4448A00CB0B25 /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file.c; path = src/file.c; sourceTree = "<group>"; };
 		D526B4F80FB465010014DDEB /* epak.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = epak.h; path = include/epak.h; sourceTree = "<group>"; };
+		D52725AD111354A700151BCE /* libepaksim.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libepaksim.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D52725C31113559100151BCE /* libepak-Debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libepak-Debug.a"; path = "build/libepak-Debug.a"; sourceTree = "<group>"; };
+		D52725CA111355EC00151BCE /* libepak-Release.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libepak-Release.a"; path = "build/libepak-Release.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,13 +82,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D52725A8111354A700151BCE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D52725A9111354A700151BCE /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		034768DFFF38A50411DB9C8B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D2AAC07E0554694100DB518D /* libepak.a */,
+				D2AAC07E0554694100DB518D /* libepakdev.a */,
+				D52725AD111354A700151BCE /* libepaksim.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -52,6 +105,7 @@
 		0867D691FE84028FC02AAC07 /* epak */ = {
 			isa = PBXGroup;
 			children = (
+				D52725C21113556D00151BCE /* dist */,
 				D518546B0FB43E1800CB0B25 /* include */,
 				D51854670FB43BEA00CB0B25 /* src */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
@@ -97,6 +151,15 @@
 			name = include;
 			sourceTree = "<group>";
 		};
+		D52725C21113556D00151BCE /* dist */ = {
+			isa = PBXGroup;
+			children = (
+				D52725C31113559100151BCE /* libepak-Debug.a */,
+				D52725CA111355EC00151BCE /* libepak-Release.a */,
+			);
+			name = dist;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -112,12 +175,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D527259F111354A700151BCE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D52725A0111354A700151BCE /* epak_Prefix.pch in Headers */,
+				D52725A1111354A700151BCE /* base.h in Headers */,
+				D52725A2111354A700151BCE /* lzss.h in Headers */,
+				D52725A3111354A700151BCE /* file.h in Headers */,
+				D52725A4111354A700151BCE /* epak.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		D2AAC07D0554694100DB518D /* epak */ = {
+		D2AAC07D0554694100DB518D /* epakdev */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "epak" */;
+			buildConfigurationList = 1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "epakdev" */;
 			buildPhases = (
 				D2AAC07A0554694100DB518D /* Headers */,
 				D2AAC07B0554694100DB518D /* Sources */,
@@ -127,9 +202,26 @@
 			);
 			dependencies = (
 			);
-			name = epak;
+			name = epakdev;
 			productName = epak;
-			productReference = D2AAC07E0554694100DB518D /* libepak.a */;
+			productReference = D2AAC07E0554694100DB518D /* libepakdev.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D527259E111354A700151BCE /* epaksim */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D52725AA111354A700151BCE /* Build configuration list for PBXNativeTarget "epaksim" */;
+			buildPhases = (
+				D527259F111354A700151BCE /* Headers */,
+				D52725A5111354A700151BCE /* Sources */,
+				D52725A8111354A700151BCE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = epaksim;
+			productName = epak;
+			productReference = D52725AD111354A700151BCE /* libepaksim.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -145,10 +237,28 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D2AAC07D0554694100DB518D /* epak */,
+				D2AAC07D0554694100DB518D /* epakdev */,
+				D527259E111354A700151BCE /* epaksim */,
+				D52725B3111354E700151BCE /* epak */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		D52725B2111354E700151BCE /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# remove existing product lib file, just in case\nrm -rf build/libepak-${BUILD_STYLE}.a\n\n# combine lib files for various platforms into one\nlipo -create \"build/${BUILD_STYLE}-iphoneos/libepakdev.a\" \\\n  \"build/${BUILD_STYLE}-iphonesimulator/libepaksim.a\" \\\n  -output build/libepak-${BUILD_STYLE}.a\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D2AAC07B0554694100DB518D /* Sources */ = {
@@ -160,7 +270,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D52725A5111354A700151BCE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D52725A6111354A700151BCE /* lzss.c in Sources */,
+				D52725A7111354A700151BCE /* file.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D52725B7111354EF00151BCE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2AAC07D0554694100DB518D /* epakdev */;
+			targetProxy = D52725B6111354EF00151BCE /* PBXContainerItemProxy */;
+		};
+		D52725B9111354F100151BCE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D527259E111354A700151BCE /* epaksim */;
+			targetProxy = D52725B8111354F100151BCE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1DEB921F08733DC00010E9CD /* Debug */ = {
@@ -176,9 +308,10 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = epak_Prefix.pch;
+				HEADER_SEARCH_PATHS = include;
 				INSTALL_PATH = /usr/local/lib;
-				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_NAME = epak;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = epakdev;
 			};
 			name = Debug;
 		};
@@ -191,8 +324,10 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = epak_Prefix.pch;
+				HEADER_SEARCH_PATHS = include;
 				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = epak;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = epakdev;
 			};
 			name = Release;
 		};
@@ -236,10 +371,69 @@
 			};
 			name = Release;
 		};
+		D52725AB111354A700151BCE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				DSTROOT = /tmp/epak.dst;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = epak_Prefix.pch;
+				HEADER_SEARCH_PATHS = include;
+				INSTALL_PATH = /usr/local/lib;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = epaksim;
+				SDKROOT = iphonesimulator3.0;
+			};
+			name = Debug;
+		};
+		D52725AC111354A700151BCE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				DSTROOT = /tmp/epak.dst;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = epak_Prefix.pch;
+				HEADER_SEARCH_PATHS = include;
+				INSTALL_PATH = /usr/local/lib;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = epaksim;
+				SDKROOT = iphonesimulator3.0;
+			};
+			name = Release;
+		};
+		D52725B4111354E700151BCE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = epak;
+			};
+			name = Debug;
+		};
+		D52725B5111354E700151BCE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = epak;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "epak" */ = {
+		1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "epakdev" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB921F08733DC00010E9CD /* Debug */,
@@ -253,6 +447,24 @@
 			buildConfigurations = (
 				1DEB922308733DC00010E9CD /* Debug */,
 				1DEB922408733DC00010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D52725AA111354A700151BCE /* Build configuration list for PBXNativeTarget "epaksim" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D52725AB111354A700151BCE /* Debug */,
+				D52725AC111354A700151BCE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D52725BF111354FF00151BCE /* Build configuration list for PBXAggregateTarget "epak" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D52725B4111354E700151BCE /* Debug */,
+				D52725B5111354E700151BCE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

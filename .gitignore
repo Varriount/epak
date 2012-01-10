@@ -1,18 +1,28 @@
+# Matches on any directory
 *.mode1v3
 *.mode2v3
 *.nib
 *.pbxuser
 *.perspective
 *.perspectivev3
+*.pvrtc
+*.pvrtc-preview.png
 *.swp
 .DS_Store
-archive
-build
-docs
-example/*.epak
-example/pretest
-example/pretest.dSYM
-example/test
-obj
-profile
+.optimus.pickle
+Thumbs.db
+project.xcworkspace/
 tags
+xcuserdata/
+
+# Full paths.
+/archive
+/build
+/docs
+/example/*.epak
+/example/pretest
+/example/pretest.dSYM
+/example/test
+/obj
+/profile
+/tags

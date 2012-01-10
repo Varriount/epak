@@ -1,7 +1,7 @@
 .PHONY: docs example python
 
 PYTHON = python
-CC = gcc-4.0
+CC = llvm-gcc
 OBJ_DIR = obj
 LIB_NAME = obj/libepak.a
 WFLAGS = -Wall -W -Werror -Wno-unused

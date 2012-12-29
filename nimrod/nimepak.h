@@ -1,31 +1,18 @@
-// vim:tabstop=4 shiftwidth=4 encoding=utf-8
-/*         ______   ___    ___
- *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
- *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
- *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
- *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
- *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
- *                                           /\____/
- *                                           \_/__/
- *
- *      File I/O.
- *
- *      By Shawn Hargreaves.
- *
- *      See readme.txt for copyright information.
- */
+// The epak.h was processed with c2nim and tweaked.
 
-
-#ifndef ALLEGRO_FILE_H
-#define ALLEGRO_FILE_H
-
-#include "epak/base.h"
-
-#ifdef __cplusplus
-	extern "C" {
+#ifdef C2NIM
+#	header "epak.h"
+#	typeprefixes
+#	skipcomments
 #endif
 
+#define PACKFILE_FLAG_WRITE      1
+#define PACKFILE_FLAG_PACK       2
+#define PACKFILE_FLAG_CHUNK      4
+#define PACKFILE_FLAG_EOF        8
+#define PACKFILE_FLAG_ERROR      16
+#define PACKFILE_FLAG_OLD_CRYPT  32
+#define PACKFILE_FLAG_EXEDAT     64
 
 #define F_READ          "r"
 #define F_WRITE         "w"
@@ -42,6 +29,10 @@
 /// magic number for appended data
 #define F_EXE_MAGIC     0x736C682BL
 
+typedef struct PACKFILE_VTABLE_t PACKFILE_VTABLE;
+typedef struct PACKFILE_t PACKFILE;
+typedef struct LZSS_PACK_DATA_t LZSS_PACK_DATA;
+typedef struct LZSS_UNPACK_DATA_t LZSS_UNPACK_DATA;
 
 
 struct _al_normal_packfile_details
@@ -68,26 +59,21 @@ struct PACKFILE_t
 	void *userdata;
 	int is_normal_packfile;
 
-	/* The following is only to be used for the "normal" PACKFILE vtable,
-	 * i.e. what is implemented by Allegro itself. If is_normal_packfile is
-	 * false then the following is not even allocated. This must be the last
-	 * member in the structure.
-	 */
 	struct _al_normal_packfile_details normal;
 };
 
 
 struct PACKFILE_VTABLE_t
 {
-	AL_METHOD(int, pf_fclose, (void *userdata));
-	AL_METHOD(int, pf_getc, (void *userdata));
-	AL_METHOD(int, pf_ungetc, (int c, void *userdata));
-	AL_METHOD(long, pf_fread, (void *p, long n, void *userdata));
-	AL_METHOD(int, pf_putc, (int c, void *userdata));
-	AL_METHOD(long, pf_fwrite, (const void *p, long n, void *userdata));
-	AL_METHOD(int, pf_fseek, (void *userdata, int offset));
-	AL_METHOD(int, pf_feof, (void *userdata));
-	AL_METHOD(int, pf_ferror, (void *userdata));
+	int (* pf_fclose)  (void *userdata);
+	int (* pf_getc)  (void *userdata);
+	int (* pf_ungetc)  (int c, void *userdata);
+	long (* pf_fread)  (void *p, long n, void *userdata);
+	int (* pf_putc)  (int c, void *userdata);
+	long (* pf_fwrite)  (const void *p, long n, void *userdata);
+	int (* pf_fseek)  (void *userdata, int offset);
+	int (* pf_feof)  (void *userdata);
+	int (* pf_ferror)  (void *userdata);
 };
 
 
@@ -114,13 +100,3 @@ long pack_mputl(long l, PACKFILE *f);
 long pack_fread(void *p, long n, PACKFILE *f);
 long pack_fwrite(const void *p, long n, PACKFILE *f);
 int pack_ungetc(int c, PACKFILE *f);
-
-
-
-#ifdef __cplusplus
-	}
-#endif
-
-#endif          /* ifndef ALLEGRO_FILE_H */
-
-

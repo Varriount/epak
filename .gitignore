@@ -11,6 +11,7 @@
 .DS_Store
 .optimus.pickle
 Thumbs.db
+nimcache/
 project.xcworkspace/
 tags
 xcuserdata/
@@ -23,6 +24,9 @@ xcuserdata/
 /example/pretest
 /example/pretest.dSYM
 /example/test
+/nimrod/no pass.epak
+/nimrod/testnimepak
+/nimrod/with pass.epak
 /obj
 /profile
 /tags

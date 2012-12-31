@@ -24,10 +24,10 @@ xcuserdata/
 /example/pretest
 /example/pretest.dSYM
 /example/test
-/nimrod/nimepakoo
-/nimrod/no pass.epak
-/nimrod/testnimepak
-/nimrod/with pass.epak
+/nimrod/tests/no pass.epak
+/nimrod/tests/testnimepak
+/nimrod/tests/testnimepakoo
+/nimrod/tests/with pass.epak
 /obj
 /profile
 /tags

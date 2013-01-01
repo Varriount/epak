@@ -33,10 +33,10 @@ all: $(LIB_DEBUG) $(LIB_RELEASE) example docs
 	@echo "Now that the code is built, run make install."
 
 $(LIB_DEBUG): $(wildcard src/*.c) $(wildcard include/*.h) $(wildcard include/epak/*h)
-	xcodebuild -configuration Debug -target epak
+	xcodebuild -scheme epak-debug
 
 $(LIB_RELEASE): $(wildcard src/*.c) $(wildcard include/*.h) $(wildcard include/epak/*h)
-	xcodebuild -configuration Release -target epak
+	xcodebuild -scheme epak-release
 
 #install: $(TARGET_LIB) install_python
 install: $(TARGET_LIB)

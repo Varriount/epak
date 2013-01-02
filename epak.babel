@@ -1,0 +1,8 @@
+[Package]
+name          = "epak"
+version       = "1.0.0"
+author        = "Grzegorz Adam Hankiewicz"
+description   = """File compression routines in C for iOS and Nimrod."""
+license       = "Giftware"
+
+SkipDirs = "build,python"

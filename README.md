@@ -17,9 +17,11 @@ documentation](http://alleg.sourceforge.net/stabledocs/en/alleg030.html) was
 merged into the source code for Doxygenation, so ignore any Allegro stale
 references in the docs.
 
-For a full definition of pack_* functions, see file.h. File lzss.h doesn't
-really provide interesting functions, those are used internally by the packfile
-functions, so you can skip it.
+For a full definition of pack_* functions, see
+[file.h](https://github.com/gradha/epak/blob/master/include/epak/file.h). File
+[lzss.h](https://github.com/gradha/epak/blob/master/include/epak/lzss.h)
+doesn't really provide interesting functions, those are used internally by the
+packfile functions, so you can skip it.
 
 Basically, a
 [PACKFILE](http://alleg.sourceforge.net/stabledocs/en/alleg001.html#PACKFILE)
@@ -64,8 +66,8 @@ This library is very small so there was no point in compiling stuff
 dynamically. You link to it statically passing ``-lepak`` to your commandline
 (and likely ``-L/usr/local/lib`` too).
 
-The ``example`` subdirectory contains a C example progam using the library
-along and it's pythonic version.
+The [example](https://github.com/gradha/epak/tree/master/example) subdirectory
+contains a C example progam using the library along and it's pythonic version.
 
 
 Python bindings
@@ -92,14 +94,20 @@ language*. Yay. So the python code is not maintained any more in favour of
 Nimrod bindings
 ===============
 
-[Nimrod](http://nimrod-code.org) code is contained within the ``nimrod``
-subdirectory, which has the raw interface plus an object oriented interface
-inspired on the python bindings. Another ``tests`` subdirectory highlights how
-these modules can be used.
+[Nimrod](http://nimrod-code.org) code is contained within the
+[nimrod](https://github.com/gradha/epak/tree/master/nimrod) subdirectory, which
+has the raw interface plus an object oriented interface inspired on the python
+bindings. Another
+[tests](https://github.com/gradha/epak/tree/master/nimrod/tests) subdirectory
+highlights how these modules can be used.
 
 Note that using the nimrod interface will implicitly to link your program
 against the C epak library, so you need to install that on your system or
-compilation of your nimrod program will fail.
+compilation of your nimrod program will fail. Additional parameters for
+compilation are contained inside [nimrod configuration
+files](https://github.com/gradha/epak/blob/master/nimrod/tests/nimrod.cfg), so
+you can type ``nimrod c -r testnimepakoo.nim`` and everything should work as
+long as you have previously installed the C library on your system.
 
 
 Documentation

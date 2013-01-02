@@ -1,5 +1,3 @@
-// vim:tabstop=4 shiftwidth=4 encoding=utf-8
-
 /** \mainpage
  * File compression routines.
  *
@@ -39,3 +37,5 @@
 #include "epak/file.h"
 
 #endif // __EPAK_H__
+
+// vim:tabstop=4 shiftwidth=4

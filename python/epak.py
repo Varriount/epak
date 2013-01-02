@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- encoding: utf8 -*- vim: tabstop=4 shiftwidth=4 encoding=utf-8
+# -*- encoding: utf8 -*-
 """Convenience wrapper around raw _epak C module."""
 
 from __future__ import with_statement
@@ -147,3 +147,5 @@ def set_password(password):
 
 if __name__ == "__main__":
 	main()
+
+# vim: tabstop=4 shiftwidth=4

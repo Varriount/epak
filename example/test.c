@@ -1,4 +1,3 @@
-// vim:tabstop=4 shiftwidth=4 encoding=utf-8
 /*
  * Exercises the pack* functions to verify they are working.
  */
@@ -105,3 +104,5 @@ int main(void)
 
 	return 0;
 }
+
+// vim:tabstop=4 shiftwidth=4

@@ -1,4 +1,3 @@
-// vim:tabstop=4 shiftwidth=4 encoding=utf-8
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
@@ -13,7 +12,7 @@
  *
  *      By Shawn Hargreaves.
  *
- *      See readme.txt for copyright information.
+ *      See Allegro's readme.txt for copyright information.
  */
 
 
@@ -42,4 +41,4 @@ AL_FUNC(int, _al_lzss_incomplete_state, (AL_CONST LZSS_UNPACK_DATA *dat));
 
 #endif          /* ifndef ALLEGRO_LZSS_H */
 
-
+// vim:tabstop=4 shiftwidth=4

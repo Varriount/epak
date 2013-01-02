@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- encoding: utf8 -*- vim: tabstop=4 shiftwidth=4 encoding=utf-8
+# -*- encoding: utf8 -*-
 
 import os
 import string
@@ -17,7 +17,7 @@ extra_link_args = ["-gA"]
 def main():
 	setup(name='epak',
 		author="Grzegorz Adam Hankiewicz",
-		author_email="gradha@titanium.sabren.com",
+		author_email="gradha@imap.cc",
 		description="Python bindings to epak library",
 		package_dir = {'': 'python'},
 		py_modules=['epak'],
@@ -34,3 +34,5 @@ def main():
 
 if __name__ == "__main__":
 	main()
+
+# vim: tabstop=4 shiftwidth=4

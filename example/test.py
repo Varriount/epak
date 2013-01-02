@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- encoding: utf8 -*- vim: tabstop=4 shiftwidth=4 encoding=utf-8
+# -*- encoding: utf8 -*-
 """Tests in python that the datafile functions work."""
 
 from __future__ import with_statement
@@ -182,3 +182,5 @@ def main():
 
 if "__main__" == __name__:
 	main()
+
+# vim: tabstop=4 shiftwidth=4

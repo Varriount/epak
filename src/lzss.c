@@ -1,4 +1,3 @@
-// vim:tabstop=4 shiftwidth=4 encoding=utf-8
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
@@ -15,7 +14,7 @@
  *
  *      Original code by Haruhiko Okumura.
  *
- *      See readme.txt for copyright information.
+ *      See Allegro's readme.txt for copyright information.
  */
 
 
@@ -566,3 +565,5 @@ int _al_lzss_incomplete_state(AL_CONST LZSS_UNPACK_DATA *dat)
 {
 	return dat->state == 2;
 }
+
+// vim:tabstop=4 shiftwidth=4

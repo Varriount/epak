@@ -1,5 +1,3 @@
-// vim:tabstop=4 shiftwidth=4 encoding=utf-8
-
 #include "Python.h"
 #include "epak.h"
 #include <stdlib.h>
@@ -211,3 +209,5 @@ PyMODINIT_FUNC init_epak(void)
 	Epak_error = PyErr_NewException("_epak.Epak_error", NULL, NULL);
 	PyDict_SetItemString(d, "Epak_error", Epak_error);
 }
+
+// vim:tabstop=4 shiftwidth=4

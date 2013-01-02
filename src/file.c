@@ -1,4 +1,3 @@
-// vim:tabstop=4 shiftwidth=4 encoding=utf-8
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
@@ -1602,3 +1601,5 @@ Error:
 	f->normal.flags |= PACKFILE_FLAG_ERROR;
 	return EOF;
 }
+
+// vim:tabstop=4 shiftwidth=4

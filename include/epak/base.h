@@ -1,4 +1,3 @@
-// vim:tabstop=4 shiftwidth=4 encoding=utf-8
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
@@ -70,3 +69,5 @@ typedef struct LZSS_UNPACK_DATA_t LZSS_UNPACK_DATA;
 
 
 #endif // ALLEGRO_SIMULATED_BASE_H
+
+// vim:tabstop=4 shiftwidth=4

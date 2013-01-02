@@ -1,4 +1,3 @@
-// vim:tabstop=4 shiftwidth=4 encoding=utf-8
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
@@ -13,7 +12,7 @@
  *
  *      By Shawn Hargreaves.
  *
- *      See readme.txt for copyright information.
+ *      See Allegro's readme.txt for copyright information.
  */
 
 
@@ -123,4 +122,4 @@ int pack_ungetc(int c, PACKFILE *f);
 
 #endif          /* ifndef ALLEGRO_FILE_H */
 
-
+// vim:tabstop=4 shiftwidth=4

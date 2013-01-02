@@ -6,16 +6,17 @@ static library, with bindings for [Nimrod](http://nimrod-code.org). The code in
 this mini-library has been ripped off from [Allegro's 4.2.2 source
 code](http://alleg.sourceforge.net/), [which is
 gift-ware](http://alleg.sourceforge.net/license.html). Allegro has advanced in
-the meantime, so you may want to check the new 5 version, or se an alternative
-library without dependencies like [libtpl](http://tpl.sourceforge.net). I can't
-even remember why I named it epak, maybe a mixture of [Electric
-Hands](http://elhaso.com/) + **pa**[c]**k**files?
+the meantime, so you may want to check the new 5th version, or see an
+alternative library without huge dependencies like
+[libtpl](http://tpl.sourceforge.net). I can't even remember why I named it
+epak, maybe a mixture of [Electric Hands](http://elhaso.com/) +
+**pa**[c]**k**files?
 
 The code has been adapted and bloat removed. Mainly, pack_* functions are
 present supporting basic XOR encryption and quick LZSS compression. [Original
 documentation](http://alleg.sourceforge.net/stabledocs/en/alleg030.html) was
-merged into the source code for Doxygenation, so ignore any Allegro stale
-references in the docs.
+merged into the C source code for Doxygenation, so ignore any Allegro stale
+references in the generated docs.
 
 For a full definition of pack_* functions, see
 [file.h](https://github.com/gradha/epak/blob/master/include/epak/file.h). File
@@ -101,10 +102,10 @@ bindings. Another
 [tests](https://github.com/gradha/epak/tree/master/nimrod/tests) subdirectory
 highlights how these modules can be used.
 
-Note that using the nimrod interface will implicitly to link your program
-against the C epak library, so you need to install that on your system or
-compilation of your nimrod program will fail. Additional parameters for
-compilation are contained inside [nimrod configuration
+Note that using the nimrod interface will implicitly link your program
+statically against the C epak library, so you need to install that on your
+system or compilation of your nimrod program will fail. Additional parameters
+for compilation are contained inside [nimrod configuration
 files](https://github.com/gradha/epak/blob/master/nimrod/tests/nimrod.cfg), so
 you can type ``nimrod c -r testnimepakoo.nim`` and everything should work as
 long as you have previously installed the C library on your system.
@@ -117,8 +118,8 @@ Basic documentation was ripped from Allegro but didn't make it through all the
 bindings. You can build it with [Doxygen](http://www.doxygen.org). In fact, the
 normal makefile will try to build it but won't fail with an error if it can't.
 In these situations use
-[http://alleg.sourceforge.net/stabledocs/en/alleg030.html](http://alleg.sourceforge.net/stabledocs/en/alleg030.html)
-as the authoritative reference, or read the source, it's not really hard and
-the number of functions is small.
+<http://alleg.sourceforge.net/stabledocs/en/alleg030.html> as the authoritative
+reference, or read the source, it's not really hard and the number of functions
+is small.
 
 Good luck!

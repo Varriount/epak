@@ -54,6 +54,14 @@ and
 [pack_fread()](http://alleg.sourceforge.net/stabledocs/en/alleg030.html#pack_fread).
 
 
+License
+=======
+
+This package is provided under the same same license as the C code it was based
+on. The [Allegro 4.0 giftware
+license](http://alleg.sourceforge.net/license.html) is basically a MIT license.
+
+
 Installation/Usage
 ==================
 

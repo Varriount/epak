@@ -134,3 +134,10 @@ proc write*(self: var Tepak; src: pointer; length: clong):
   result = pack_fwrite(src, length, self.pak)
   assert result == length, "Didn't write all bytes?"
   assert pack_ferror(self.pak) == 0, "Error pending"
+
+proc write*(self: var Tepak; text: string): clong {.discardable.} =
+  ## Convenience wrapper, writes the string including null terminator.
+  assert self.pak != nil, "Unexpected bad epak"
+  result = pack_fwrite(cstring(text), clong(1 + text.len), self.pak)
+  assert result == 1 + text.len, "Didn't write all bytes?"
+  assert pack_ferror(self.pak) == 0, "Error pending"

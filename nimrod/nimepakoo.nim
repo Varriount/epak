@@ -32,6 +32,10 @@ proc init*(self: var Tepak; filename, mode: string) =
   self.mode = mode
   self.pak = pack_fopen(filename, mode)
 
+proc new_epak*(filename, mode: string): Tepak =
+  ## Convenience wrapper around init to create vars.
+  result.init(filename, mode)
+
 proc is_valid*(self: Tepak): bool {.inline.} =
   result = self.pak != nil
 
@@ -127,6 +131,13 @@ proc read*(self: var Tepak; dest: pointer; length: clong): clong =
   assert self.pak != nil, "Unexpected bad epak"
   result = pack_fread(dest, length, self.pak)
   assert result == length, "Didn't read expected char count"
+
+proc read*(self: var Tepak; length: clong): string =
+  assert self.pak != nil, "Unexpected bad epak"
+  result = newString(length)
+  let read_length = pack_fread(cstring(result), length, self.pak)
+  result.setLen(read_length)
+  assert read_length == length, "Didn't read expected char count"
 
 proc write*(self: var Tepak; src: pointer; length: clong):
     clong {.discardable.} =

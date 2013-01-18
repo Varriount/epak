@@ -1,8 +1,9 @@
-# The epak.h was processed with c2nim and tweaked, don't overwrite it blindly!
-# And before that, it was preprocessed with cpp, and manually tweaked to
-# recover constants, since the Allegro macros and recursive includes are bad
-# for c2nim..
-{.passL: "-lepak".}
+# The bundled.c file is a pregenerated file which takes the normal C source and
+# concatenates it into a single file. This allows us to use Nimrod's compile
+# macro to statically embed the source on every nimrod compilation, and thus
+# avoid problems with system-wide installed libraries. It also helps
+# versioning.
+{.compile: "bundled.c".}
 
 const
   PACKFILE_FLAG_WRITE* = 1

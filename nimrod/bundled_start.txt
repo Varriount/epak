@@ -1,0 +1,19 @@
+// File generated, see gen_nimrod_c in Makefile
+
+#ifndef DEBUG
+#define NDEBUG
+#define NS_BLOCK_ASSERTIONS
+#define RELEASE
+#endif
+
+#include <assert.h>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/errno.h>
+#include <sys/fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include "bundled.h"
+

@@ -24,6 +24,8 @@ xcuserdata/
 /example/pretest
 /example/pretest.dSYM
 /example/test
+/nimrod/bundled.c
+/nimrod/bundled.h
 /nimrod/nimepak
 /nimrod/nimepakoo
 /nimrod/tests/no pass.epak

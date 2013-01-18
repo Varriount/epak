@@ -81,3 +81,10 @@ clean:
 
 ctags:
 	~/bin/objctags -R src include
+
+gen_nimrod_c:
+	echo "// File generated, see gen_nimrod_c in Makefile" > nimrod/bundled.h
+	grep -hv "#include" include/epak/*.h >> nimrod/bundled.h
+	cp nimrod/bundled_start.txt nimrod/bundled.c
+	grep -hv "#include" src/file.c >> nimrod/bundled.c
+	grep -hv "#include" src/lzss.c >> nimrod/bundled.c

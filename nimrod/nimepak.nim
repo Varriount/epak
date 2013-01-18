@@ -34,7 +34,7 @@ type
   TLZSS_UNPACK_DATA* {.importc: "struct TLZSS_UNPACK_DATA_t".} = object
   T_al_normal_packfile_details* {.pure, final,
                                   importc: "_al_normal_packfile_details",
-                                  header: "epak.h".} = object
+                                  .} = object
     hndl* {.importc: "hndl".}: cint
     flags* {.importc: "flags".}: cint
     buf_pos* {.importc: "buf_pos".}: ptr cuchar
@@ -48,14 +48,14 @@ type
     passpos* {.importc: "passpos".}: cstring
     buf* {.importc: "buf".}: array[0..F_BUF_SIZE - 1, cuchar]
 
-  TPACKFILE_t* {.pure, final, importc: "PACKFILE_t", header: "epak.h".} = object
+  TPACKFILE_t* {.pure, final, importc: "PACKFILE_t".} = object
     vtable* {.importc: "vtable".}: ptr TPACKFILE_VTABLE
     userdata* {.importc: "userdata".}: pointer
     is_normal_packfile* {.importc: "is_normal_packfile".}: cint
     normal* {.importc: "normal".}: T_al_normal_packfile_details
 
   TPACKFILE_VTABLE_t* {.pure, final, importc: "PACKFILE_VTABLE_t",
-                        header: "epak.h".} = object
+                        .} = object
     pf_fclose* {.importc: "pf_fclose".}: proc (userdata: pointer): cint
     pf_getc* {.importc: "pf_getc".}: proc (userdata: pointer): cint
     pf_ungetc* {.importc: "pf_ungetc".}: proc (c: cint; userdata: pointer): cint
@@ -69,47 +69,33 @@ type
     pf_ferror* {.importc: "pf_ferror".}: proc (userdata: pointer): cint
 
 
-proc packfile_password*(password: cstring) {.importc: "packfile_password",
-    header: "epak.h".}
+proc packfile_password*(password: cstring) {.importc: "packfile_password".}
 proc pack_fopen*(filename: cstring; mode: cstring): ptr TPACKFILE {.
-    importc: "pack_fopen", header: "epak.h".}
+    importc: "pack_fopen"}
 proc pack_fopen_vtable*(vtable: ptr TPACKFILE_VTABLE; userdata: pointer): ptr TPACKFILE {.
-    importc: "pack_fopen_vtable", header: "epak.h".}
-proc pack_fclose*(f: ptr TPACKFILE): cint {.importc: "pack_fclose",
-    header: "epak.h".}
-proc pack_fseek*(f: ptr TPACKFILE; offset: cint): cint {.importc: "pack_fseek",
-    header: "epak.h".}
+    importc: "pack_fopen_vtable"}
+proc pack_fclose*(f: ptr TPACKFILE): cint {.importc: "pack_fclose".}
+proc pack_fseek*(f: ptr TPACKFILE; offset: cint): cint {.importc: "pack_fseek".}
 proc pack_skip_chunks*(f: ptr TPACKFILE; num_chunks: cuint): cint {.
-    importc: "pack_skip_chunks", header: "epak.h".}
+    importc: "pack_skip_chunks".}
 proc pack_fopen_chunk*(f: ptr TPACKFILE; pack: cint): ptr TPACKFILE {.
-    importc: "pack_fopen_chunk", header: "epak.h".}
+    importc: "pack_fopen_chunk".}
 proc pack_fclose_chunk*(f: ptr TPACKFILE): ptr TPACKFILE {.
-    importc: "pack_fclose_chunk", header: "epak.h".}
-proc pack_getc*(f: ptr TPACKFILE): cint {.importc: "pack_getc", header: "epak.h".}
-proc pack_putc*(c: cint; f: ptr TPACKFILE): cint {.importc: "pack_putc",
-    header: "epak.h".}
-proc pack_feof*(f: ptr TPACKFILE): cint {.importc: "pack_feof", header: "epak.h".}
-proc pack_ferror*(f: ptr TPACKFILE): cint {.importc: "pack_ferror",
-    header: "epak.h".}
-proc pack_igetw*(f: ptr TPACKFILE): cint {.importc: "pack_igetw",
-    header: "epak.h".}
-proc pack_igetl*(f: ptr TPACKFILE): clong {.importc: "pack_igetl",
-    header: "epak.h".}
-proc pack_iputw*(w: cint; f: ptr TPACKFILE): cint {.importc: "pack_iputw",
-    header: "epak.h".}
-proc pack_iputl*(l: clong; f: ptr TPACKFILE): clong {.importc: "pack_iputl",
-    header: "epak.h".}
-proc pack_mgetw*(f: ptr TPACKFILE): cint {.importc: "pack_mgetw",
-    header: "epak.h".}
-proc pack_mgetl*(f: ptr TPACKFILE): clong {.importc: "pack_mgetl",
-    header: "epak.h".}
-proc pack_mputw*(w: cint; f: ptr TPACKFILE): cint {.importc: "pack_mputw",
-    header: "epak.h".}
-proc pack_mputl*(l: clong; f: ptr TPACKFILE): clong {.importc: "pack_mputl",
-    header: "epak.h".}
+    importc: "pack_fclose_chunk".}
+proc pack_getc*(f: ptr TPACKFILE): cint {.importc: "pack_getc".}
+proc pack_putc*(c: cint; f: ptr TPACKFILE): cint {.importc: "pack_putc".}
+proc pack_feof*(f: ptr TPACKFILE): cint {.importc: "pack_feof".}
+proc pack_ferror*(f: ptr TPACKFILE): cint {.importc: "pack_ferror".}
+proc pack_igetw*(f: ptr TPACKFILE): cint {.importc: "pack_igetw".}
+proc pack_igetl*(f: ptr TPACKFILE): clong {.importc: "pack_igetl".}
+proc pack_iputw*(w: cint; f: ptr TPACKFILE): cint {.importc: "pack_iputw".}
+proc pack_iputl*(l: clong; f: ptr TPACKFILE): clong {.importc: "pack_iputl".}
+proc pack_mgetw*(f: ptr TPACKFILE): cint {.importc: "pack_mgetw".}
+proc pack_mgetl*(f: ptr TPACKFILE): clong {.importc: "pack_mgetl".}
+proc pack_mputw*(w: cint; f: ptr TPACKFILE): cint {.importc: "pack_mputw".}
+proc pack_mputl*(l: clong; f: ptr TPACKFILE): clong {.importc: "pack_mputl".}
 proc pack_fread*(p: pointer; n: clong; f: ptr TPACKFILE): clong {.
-    importc: "pack_fread", header: "epak.h".}
+    importc: "pack_fread".}
 proc pack_fwrite*(p: pointer; n: clong; f: ptr TPACKFILE): clong {.
-    importc: "pack_fwrite", header: "epak.h".}
-proc pack_ungetc*(c: cint; f: ptr TPACKFILE): cint {.importc: "pack_ungetc",
-    header: "epak.h".}
+    importc: "pack_fwrite".}
+proc pack_ungetc*(c: cint; f: ptr TPACKFILE): cint {.importc: "pack_ungetc".}

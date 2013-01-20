@@ -1,7 +1,14 @@
-# The bundled.c file is a pregenerated file which takes the normal C source and
-# concatenates it into a single file. This allows us to use Nimrod's compile
-# macro to statically embed the source on every nimrod compilation, and thus
-# avoid problems with system-wide installed libraries. It also helps
+## The nimepak module provides a nimrod binding against the C epak library (see
+## https://github.com/gradha/epak ). This library is a subset of Allegro's
+## file and compression routines (see
+## http://alleg.sourceforge.net/stabledocs/en/alleg030.html ). The `nimepakoo
+## <nimepakoo.html>`_ object oriented module provides a more convenient way to
+## use these procs, so go read its documentation instead.
+
+# The bundled.c file is a pregenerated file result of taking epak's C source
+# and concatenating it into a single file. This allows us to use Nimrod's
+# compile macro to statically embed the source on every nimrod compilation, and
+# thus avoid problems with system-wide installed libraries. It also helps
 # versioning.
 {.compile: "bundled.c".}
 
@@ -70,8 +77,56 @@ type
 
 
 proc packfile_password*(password: cstring) {.importc: "packfile_password".}
+  ## Sets the global packfile password, replacing
+  ## Sets the encryption password to be used for all read/write operations on
+  ## files opened in future using Allegro's packfile functions (whether they
+  ## are compressed or not), including all the save, load and config routines.
+  ## Files written with an encryption password cannot be read unless the same
+  ## password is selected, so be careful: if you forget the key, nobody can
+  ## make your data come back again! Pass NULL or an empty string to return to
+  ## the normal, non-encrypted mode. If you are using this function to prevent
+  ## people getting access to your datafiles, be careful not to store an
+  ## obvious copy of the password in your executable: if there are any strings
+  ## like "I'm the password for the datafile", it would be fairly easy to get
+  ## access to your data :-)
+  ##
+  ## Note #1: when writing a packfile, you can change the password to whatever
+  ## you want after opening the file, without affecting the write operation. On
+  ## the contrary, when writing a sub-chunk of a packfile, you must make sure
+  ## that the password that was active at the time the sub-chunk was opened is
+  ## still active before closing the sub-chunk. This is guaranteed to be true
+  ## if you didn't call the packfile_password() routine in the meantime. Read
+  ## operations, either on packfiles or sub-chunks, have no such restriction.
+  ##
+  ## Note #2: as explained above, the password is used for all read/write
+  ## operations on files. As a rule of thumb, always call
+  ## packfile_password(NULL) when you are done with operations on packfiles.
+
 proc pack_fopen*(filename: cstring; mode: cstring): ptr TPACKFILE {.
     importc: "pack_fopen"}
+  ## Opens a file according to mode, which may contain any of the flags:
+  ##
+  ## `r` - open file for reading.
+  ##
+  ## `w` - open file for writing, overwriting any existing data.
+  ##
+  ## `p` - open file in packed mode. Data will be compressed as it is written
+  ## to the file, and automatically uncompressed during read operations. Files
+  ## created in this mode will produce garbage if they are read without this
+  ## flag being set.
+  ##
+  ## `!` - open file for writing in normal, unpacked mode, but add the value
+  ## F_NOPACK_MAGIC to the start of the file, so that it can later be opened in
+  ## packed mode and Epak will automatically detect that the data does not
+  ## need to be decompressed.
+  ##
+  ## Instead of these flags, one of the constants F_READ, F_WRITE,
+  ## F_READ_PACKED, F_WRITE_PACKED or F_WRITE_NOPACK may be used as the mode
+  ## parameter.
+  ##
+  ## On success returns a pointer to a C TPACKFILE structure. Returns NULL on
+  ## failure, storing the error code in `errno`.
+
 proc pack_fopen_vtable*(vtable: ptr TPACKFILE_VTABLE; userdata: pointer): ptr TPACKFILE {.
     importc: "pack_fopen_vtable"}
 proc pack_fclose*(f: ptr TPACKFILE): cint {.importc: "pack_fclose".}

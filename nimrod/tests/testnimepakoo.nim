@@ -14,8 +14,7 @@ const
 proc pack_test(filename: string) =
   # Tests writting a few strings into a file, both with and without
   # compression.
-  var pak : Tepak
-  pak.init(filename, F_WRITE_NOPACK)
+  var pak = new_epak(filename, F_WRITE_NOPACK)
   assert pak.is_valid
 
   # Test writing the string as a packfile, first uncompressed.
@@ -40,8 +39,7 @@ proc read_skip_test(filename: string) =
     buf: array[0..254, char]
     pak: Tepak
 
-  pak.init(filename, F_READ_PACKED)
-  assert pak.is_valid, "Couldn't read packfile"
+  doAssert pak.init(filename, F_READ_PACKED), "Couldn't read packfile"
 
   # Open and close the first chunk, skipping. Note we ask for compression.
   pak.open_chunk(true)
@@ -62,10 +60,8 @@ proc read_skip_test(filename: string) =
   assert closing, "Couldn't force close!"
 
   # Now repeat the second read skipping the first chunk.
-  pak.init(filename, F_READ_PACKED)
-  assert pak.is_valid, "Couldn't open pak for reading"
-  if pak.skip_chunks(1) != 0:
-    quit("Couldn't skip first chunk", 1)
+  doAssert pak.init(filename, F_READ_PACKED), "Couldn't open pak for reading"
+  doAssert pak.skip_chunks(1), "Couldn't skip first chunk"
 
   pak.open_chunk(true)
   assert pak.is_valid, "Couldn't open second subckunk"

@@ -110,13 +110,23 @@ bindings. Another
 [tests](https://github.com/gradha/epak/tree/master/nimrod/tests) subdirectory
 highlights how these modules can be used.
 
-Note that using the nimrod interface will implicitly link your program
-statically against the C epak library, so you need to install that on your
-system or compilation of your nimrod program will fail. Additional parameters
-for compilation are contained inside [nimrod configuration
-files](https://github.com/gradha/epak/blob/master/nimrod/tests/nimrod.cfg), so
-you can type ``nimrod c -r testnimepakoo.nim`` and everything should work as
-long as you have previously installed the C library on your system.
+The Nimrod implementation doesn't use the *normal* C version. Instead, the C
+source code was concatenated into a single file to be embedded inside Nimrod
+using its `{.compile.}` pragma. Thanks to this you are not required to install
+the C version *previously*, just importing the epak module will be enough.
+
+In order to use the epak module in Nimrod you will have to either checkout this
+git repository and use Nimrod's ``--path`` switch to include epak's directory
+in the search list for modules, or use
+[Babel](https://github.com/nimrod-code/babel). If you have babel installed, you
+can type:
+
+    babel install nimepak
+
+And now you can ``import nimepak`` or ``import nimepakoo`` in your programs and
+everything should work. If you already have the git checkout and want to use
+babel anyway, you can type ``babel install`` inside the checkout and it will
+install the local version to your babel path.
 
 
 Documentation
@@ -129,5 +139,17 @@ In these situations use
 <http://alleg.sourceforge.net/stabledocs/en/alleg030.html> as the authoritative
 reference, or read the source, it's not really hard and the number of functions
 is small.
+
+The Nimrod version has a few docstrings in the nimepakoo module, which presents
+an object oriented wrapper around the raw C API. You can generate an HTML of
+the docstrings by going to wherever you installed the epak source and running
+Nimrod's doc2 command on the source. Example:
+
+    cd ~/.babel/libs/nimepak-1.0.0/nimrod
+    nimrod doc2 nimepak.nim
+    nimrod doc2 nimepakoo.nim
+
+This will generate an html file in the same directory containing basic
+information (mostly ripped from the Allegro C docs).
 
 Good luck!

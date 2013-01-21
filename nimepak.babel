@@ -1,5 +1,5 @@
 [Package]
-name          = "epak"
+name          = "nimepak"
 version       = "1.0.0"
 author        = "Grzegorz Adam Hankiewicz"
 description   = """File compression routines in C for iOS and Nimrod."""

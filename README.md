@@ -9,7 +9,7 @@ gift-ware](http://alleg.sourceforge.net/license.html). Allegro has advanced in
 the meantime, so you may want to check the new 5th version, or see an
 alternative library without huge dependencies like
 [libtpl](http://tpl.sourceforge.net). I can't even remember why I named it
-epak, maybe a mixture of [Electric Hands](http://elhaso.com/) +
+epak, maybe a mixture of [Electric Hands](http://elhaso.es/) +
 **pa**[c]**k**files?
 
 The code has been adapted and bloat removed. Mainly, pack_* functions are

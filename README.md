@@ -150,6 +150,9 @@ Nimrod's doc2 command on the source. Example:
     nimrod doc2 nimepakoo.nim
 
 This will generate an html file in the same directory containing basic
-information (mostly ripped from the Allegro C docs).
+information (mostly ripped from the Allegro C docs). The documentation
+generated using the ``doc2`` commands can also be browsed online at
+[http://gradha.github.io/epak/](http://gradha.github.io/epak/) for all released
+versions of the software.
 
 Good luck!
